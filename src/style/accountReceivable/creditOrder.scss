@@ -1,0 +1,19 @@
+.creditOrder {
+    .title {
+        height: 24px;
+    }
+    .content {
+        box-sizing: border-box;
+    }
+    //表单
+    .el-form {
+        .buyerName {
+            //买手姓名
+            width: calc((100% - 90px) / 4);
+        }
+        .el-select {
+            //表单select
+            width: 100%;
+        }
+    }
+}

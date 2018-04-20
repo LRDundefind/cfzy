@@ -1,0 +1,14 @@
+.order {
+    .title {
+        line-height: 14px;
+    }
+    .content {
+        box-sizing: border-box;
+    }
+    .el-form .el-select {
+        width: 100%;
+    }
+    .selectData.el-form-item {
+        width: calc((100% - 90px) / 2 + 30px);
+    }
+}

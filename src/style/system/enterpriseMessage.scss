@@ -1,0 +1,22 @@
+.enterpriseMessage {
+    .title {
+        line-height: 32px;
+    }
+    .labelName {
+        width: 100px;
+        color:#606266;
+    }
+    .content {
+        width: 85%;
+    }
+    .avatar {
+        width: 200px;
+        height: 120px;
+        display: block;
+    }
+    .el-form {
+        .el-input, .el-textarea {
+            width: 85%;
+        }
+    }
+}

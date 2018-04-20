@@ -1,0 +1,23 @@
+.personalData {
+    width: 100%;
+    .title {
+        line-height: 28px;
+    }
+    .labelName {
+        width: 100px;
+    }
+
+    .el-button + .el-button {
+        margin-left: 0;
+    }
+
+    .validate {
+        width: 308px !important;
+    }
+
+    .el-form {
+        .el-input {
+            width: 400px;
+        }
+    }
+}

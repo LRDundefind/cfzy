@@ -1,0 +1,13 @@
+.orderSettlementSheet {
+    .printLayout {
+        width: 40%;
+        border: 1px solid #dedede;
+    }
+    .print-btn {
+        margin-left: calc(70% - 78px + 20px);
+        margin-top: 15px;
+    }
+    .el-table__body-wrapper tbody>tr:last-child>td {
+        border: none;
+    }
+}

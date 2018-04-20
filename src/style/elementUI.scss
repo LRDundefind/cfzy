@@ -1,0 +1,51 @@
+/*覆盖一些element-ui样式 覆盖css样式可在这里添加*/
+$themeColor: #32d57b;
+
+/*---表格--start*/
+.table-data-list {
+    margin: 20px 0;
+}
+/*页面返回按钮*/
+.goback-btn {
+    background-color: #dedede !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+    padding: 10px !important;
+}
+.goback-btn:hover {
+    background-color: #ccc !important;
+}
+
+/*绿色结算按钮 参照现结收账/订单结算*/
+.settlement-btn {
+    background-color: $themeColor !important;
+    color: white !important;
+    padding: 10px 24px !important;
+}
+.settlement-btn:hover {
+    background-color: #21c46a !important;
+}
+/*---用户头像上传*/
+.avatar-uploader .el-upload {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.avatar-uploader .el-upload:hover {
+  border-color: #409EFF;
+}
+.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  line-height: 178px;
+  text-align: center;
+}
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}

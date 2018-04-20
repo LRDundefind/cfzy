@@ -1,0 +1,141 @@
+.tab {
+    height: 100%;
+    .el-header {
+        padding-left: 0;
+        padding-right: 30px;
+    }
+}
+.tab .el-col {
+    padding-top: 20px;
+}
+.tab .el-aside{
+    background: #535a5d;
+}
+.tab .el-aside .el-menu {
+    background: #535a5d;
+    border: none;
+    .el-menu-item{
+        line-height: 50px;
+        font-size: 18px;
+        span{
+            color: #fff;
+        }
+    }
+    .el-submenu {
+        .el-submenu__icon-arrow {
+            display: none;
+        }
+        .el-menu-item-group__title {
+            display: none;
+        }
+        .el-menu-item {
+            padding-left: 51px !important;
+            min-width: 185px;
+            font-size: 12px;
+            color: #666 !important;
+        }
+    }
+}
+.tab .el-aside .el-menu-item:hover {
+    background-color: #333;
+}
+.tab .el-aside .el-menu-item.is-active {
+    background: none;
+    span{
+        color: #33d57c;
+    }
+}
+.tab .el-aside .el-menu-item.is-active:before {
+    border-left: 6px solid #33d57c;
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+//设置图标
+.tab .el-icon-menu {
+    color: transparent !important;
+    background-repeat: no-repeat;
+    background-position: center;
+    line-height: 24px;
+    background-size: 20px 20px;
+}
+.tab .home-icon {
+    background-image: url("../../assets/tab/shouye_white_icon@2x.png");
+    background-size: 24px 24px;
+}
+.tab .is-active .home-icon {
+    background-image: url("../../assets/tab/shouye_shouye_icon@2x.png");
+    background-size: 24px 24px;
+}
+.tab .xianjie-icon {
+    background-image: url("../../assets/tab/shouye_xianjinshouzhang_icon@2x.png");
+}
+.tab .is-active .xianjie-icon {
+    background-image: url("../../assets/tab/shouye_xianjinshouzhang_green_icon@2x.png");
+}
+.tab .shezhang-icon {
+    background-image: url("../../assets/tab/shouye_shezhangshouzhang_icon@2x.png");
+}
+.tab .is-active .shezhang-icon {
+    background-image: url("../../assets/tab/shouye_shezhangshouzhang_green_icon@2x.png");
+}
+.tab .zhichu-icon {
+    background-image: url("../../assets/tab/shouye_zhichu_icon@2x.png");
+}
+.tab .is-active .zhichu-icon {
+    background-image: url("../../assets/tab/shouye_zhichu_green_icon@2x.png");
+}
+.tab .analysis-icon {
+    background-image: url("../../assets/tab/shouye_jingyingfenxi_icon@2x.png");
+}
+.tab .is-active .analysis-icon {
+    background-image: url("../../assets/tab/shouye_jingyingfenxi_green_icon@2x.png");
+}
+.tab .checiguanli-icon {
+    background-image: url("../../assets/tab/shouye_checiguanli_icon@2x.png");
+    background-size: 24px 18px;
+}
+.tab .is-active .checiguanli-icon {
+    background-image: url("../../assets/tab/shouye_checiguanli_green_icon@2x.png");
+    background-size: 24px 18px;
+}
+.tab .stock-icon {
+    background-image: url("../../assets/tab/shouye_huopinkucun_icon@2x.png");
+}
+.tab .is-active .stock-icon {
+    background-image: url("../../assets/tab/shouye_huopinkucun_green_icon@2x.png");
+}
+.tab .huozhu-icon {
+    background-image: url("../../assets/tab/shouye_huozhuguanli_icon@2x.png");
+    background-size: 20px 22px;
+}
+.tab .is-active .huozhu-icon {
+    background-image: url("../../assets/tab/shouye_huozhuguanli_green_icon-@2x.png");
+    background-size: 20px 22px;
+}
+.tab .customer-icon {
+    background-image: url("../../assets/tab/shouye_kehuguanli_icon@2x.png");
+    background-size: 20px 22px;
+}
+.tab .is-active .customer-icon {
+    background-image: url("../../assets/tab/shouye_kehuguanli_green_icon@2x.png");
+    background-size: 20px 22px;
+}
+.tab .set-icon {
+    background-image: url("../../assets/tab/shouye_xitongshezhi_icon@2x.png");
+}
+.tab .is-active .set-icon {
+    background-image: url("../../assets/tab/shouye_xitongshezhi_green_icon-@2x.png");
+}
+.tab .journal-icon {
+    background-image: url("../../assets/tab/shouye_caozuorizhi_icon@2x.png");
+}
+.tab .is-active .journal-icon {
+    background-image: url("../../assets/tab/shouye_caozuorizhi_green_icon-@2x.png");
+}
+//右侧内容
+.tab .el-main {
+    background-color: #f5f5f5;
+}

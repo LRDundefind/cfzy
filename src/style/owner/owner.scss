@@ -1,0 +1,29 @@
+.owner,
+.ownerDetail{
+	.content{
+		background: #fff;
+		padding: 20px;
+		margin-top: 10px;
+	}
+	.el-form-item {
+        width: calc((100% - 90px) / 4);
+        .el-select {
+            width: 100%;
+        }
+    }
+}
+.ownerDetail{
+	.el-row .grid-content{
+		label{
+			padding-left:5px;
+			width: 100px;
+			display: inline-block;
+		}
+		span{
+		}
+		.el-textarea{
+			width: calc(100% - 110px);
+			float: left;
+		}
+	}
+}

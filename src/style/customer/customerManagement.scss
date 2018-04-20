@@ -1,0 +1,16 @@
+.customerManagement {
+    .title {
+        line-height: 32px;
+    }
+    .el-form {
+        .el-select {
+            width: 100%;
+        }
+        > div:nth-child(3) .el-form-item:first-child {
+            width: calc((100% - 90px) / 6 + 40px);
+        }
+        > div:nth-child(3) .el-form-item:last-child {
+            width: calc((100% - 90px) / 6);
+        }
+    }
+}

@@ -1,0 +1,182 @@
+// 财务首页
+a{
+    text-decoration: none;
+}
+.mongeyTop .listthree>div{
+    background: #fff;
+    padding-left: 10px;;
+    h3{
+        color: #33d57c;
+        padding: 20px 0 15px;
+        font-size: 48px;
+    }
+    p{
+        color: #666666;
+        padding-bottom: 15px;
+        font-size: 18px;
+    }
+}
+.monryGo{
+    background: #fff;
+    font-size: 30px;
+   
+}
+.monryListOne{
+    width: 40%;
+    margin: 0px auto 40px;
+    padding-top: 50px;
+    text-align: center;
+    a{
+        color: #333333;
+    }
+    .icon {
+        width: 150px;
+        height: 150px;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        border-radius: 50%;
+        margin: 0 auto 26px;
+        cursor: pointer;
+    }
+    .addmongey{
+        background-image: url("../../assets/home/home_shouzhang_icon.png");
+    }
+    .coback{
+        background-image: url("../../assets/home/home_huanzhang_icon.png");
+    }
+}
+.monryListtwo{
+    width: 55%;
+    margin: 0 auto 0;
+    padding-bottom: 50px;
+    text-align: center;
+    a{
+        color: #333333;
+    }
+    .icon {
+        width: 150px;
+        height: 150px;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        border-radius: 50%;
+        margin: 0 auto 26px;
+        cursor: pointer;
+        .addmongey{
+            background-image: url("../../assets/home/home_shouzhang_icon.png");
+        }
+        .coback{
+            background-image: url("../../assets/home/home_huanzhang_icon.png");
+        }
+    }
+   
+    .outmoney{
+        background-image: url("../../assets/home/home_zhichu_icon.png");
+    }
+    .huomongey{
+        background-image: url("../../assets/home/home_huikuan_icon.png");
+    }
+    .overcar{
+        background-image: url("../../assets/home/home_jiesuan_icon.png");
+    }
+}
+
+// 档主首页
+//当日统计
+.home .line {
+    background-color: #dedede !important;
+    width: 1px !important;
+}
+.home .todayStatistics>div {
+    height: 140px;
+    padding: 30px;
+    box-sizing: border-box;
+    font-weight: bold;
+    background-image: url("../../assets/home/home_dangrishouru_bg.png");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    .money {
+        font-size: 48px;
+        line-height: 48px;
+        height: calc(100% - 18px);
+    }
+    .explain {
+        font-size: 18px;
+        line-height: 18px;
+    }
+}
+.home .title {
+    line-height: 34px;
+    margin-top: 10px;
+}
+//快捷入口
+.home .shortcutEntrance {
+    height: 190px;
+    text-align: center;
+    .line {
+        height: 60%;
+        margin-top: 36px;
+    }
+    .icon {
+        width: 88px;
+        height: 88px;
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        margin: 30px auto 0;
+        border-radius: 50%;
+    }
+    >div:nth-child(1) .icon {
+        background-image: url("../../assets/home/home_tianjiahuopin_icon.png");
+    }
+    >div:nth-child(3) .icon {
+        background-image: url("../../assets/home/home_tianjiamaiyou_icon.png");
+    }
+    >div:nth-child(5) .icon {
+        background-image: url("../../assets/home/home_tianjiahuozhu_icon.png");
+    }
+    >div:nth-child(7) .icon {
+        background-image: url("../../assets/home/home_shezhanghuankuan_icon.png");
+    }
+    .text {
+        line-height: 24px;
+        margin-top: 10px;
+    }
+}
+//当月概况
+.home .monthStatistics>div {
+    width: 0;
+    height: 120px;
+    padding: 30px;
+    box-sizing: border-box;
+    .explain {
+        height: calc(100% - 24px);
+    }
+    .statistics {
+        font-size: 24px;
+        line-height: 24px;
+        font-weight: bold;
+        color: #4c4c4c;
+    }
+}
+//黑名单
+.home .blacklist {
+    padding: 20px;
+    background-image: url("../../assets/home/home_heimingdan_bg.png");
+    background-size: calc(100% - 40px) calc(100% - 40px);
+    background-position: 20px 20px;
+    background-repeat: no-repeat;
+}
+.home .creditStatistics {
+    height: 340px;
+    >div {
+        width: 0;
+        margin-top: 37px;
+    }
+    .line {
+        height: 80%;
+        margin-top: 34px;
+    }
+}
+//底部公司简介
+.home .companyInformation {
+    line-height: 12px;
+}

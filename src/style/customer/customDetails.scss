@@ -1,0 +1,28 @@
+.customDetails {
+    width: 100%;
+    .name {
+        .title {
+            margin-left: 20px;
+        }
+    }
+    .information {
+        .labelName {
+            width: 95px;
+        }
+        .balckName {
+            width: 500px;
+            line-height: 2;
+        }
+        .remark {
+            width: 80%;
+            line-height: 2;
+        }
+        .picture {
+            padding: 5% 25% 0;
+        }
+        .dealName {
+            min-width: 150px;
+        }
+    }
+
+}

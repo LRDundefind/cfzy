@@ -1,0 +1,36 @@
+.goodsType,
+.record,
+.spendingType,
+.staff,
+.staffDetail{
+	.content{
+		background: #fff;
+	}
+	.el-form-item {
+        width: calc((100% - 90px) / 4);
+        .el-select {
+            width: 100%;
+        }
+    }
+    .selectData.el-form-item {
+        width: calc((100% - 90px) / 2 + 30px);
+    }
+}
+
+.staff,
+.staffDetail,
+.record,
+.goodsType{
+    .el-row .grid-content{
+        label{
+            width: 120px;
+            display: inline-block;
+        }
+        span{
+        }
+        .el-textarea{
+            width: calc(100% - 120px);
+            float: left;
+        }
+    }
+}

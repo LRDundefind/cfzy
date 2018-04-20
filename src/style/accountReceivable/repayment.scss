@@ -1,0 +1,45 @@
+.repayment {
+    .infoLayout {
+        //卖手信息
+        padding: 0 10px;
+        .icon {
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-color: red;
+        }
+        .info {
+            height: auto;
+            line-height: 39px;
+            .key {
+                width: 180px;
+                color: #1a1a1a;
+                background-color: #f5f5f5;
+                padding-left: 15px;
+                box-sizing: border-box;
+            }
+        }
+    }
+    .el-select,
+    .el-date-editor {
+        width: 100% !important;
+    }
+    //备注
+    .remarks {
+        .el-form-item__label {
+            line-height: 78px !important;
+        }
+        .el-form-item {
+            margin-bottom: 0;
+        }
+        textarea {
+            height: 78px;
+        }
+    }
+    //欠款总金额
+    .arrearsMoney {
+        font-weight: bold;
+    }
+}
