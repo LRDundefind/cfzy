@@ -1,21 +1,21 @@
 <template>
 	<div class="owner">
 		<label>货主管理</label>
-		<el-button type="primary" class="floatRight" size="small" @click="dialogFormVisible = true">新增货主</el-button>
+		<el-button type="primary" class="floatRight" size="small" @click="dialogShow">新增货主</el-button>
 		<!-- 内容 -->
 		<div class="content">
 			<!-- 筛选条件 -->
-			<el-form ref="form" :model="form" label-width="70px" class="clearfix">
+			<el-form :model="form" label-width="70px" class="clearfix">
 				<div class="ub">
 					<!-- <el-form-item label="货品名称" >
 					    <el-input v-model="form.goods" placeholder="请输入货品名称"></el-input>
 					</el-form-item> -->
-					<el-form-item label="货主姓名" class="m-l-20">
-					    <el-input v-model="params.shipName" placeholder="请输入货主姓名"></el-input>
+					<el-form-item label="货主名称" class="m-l-20">
+					    <el-input v-model="params.shipName" placeholder="请输入货主名称"></el-input>
 					</el-form-item>
 				</div>
 			</el-form>
-			<el-button type="primary" icon="el-icon-search" size="small" @click="getList">筛选</el-button>
+			<el-button type="primary" icon="el-icon-search" size="small" @click="search">筛选</el-button>
 			<!-- 货品列表 -->
 			<el-table
 				stripe
@@ -49,6 +49,20 @@
 						{{scope.row.notPayAmount | format}}
 			        </template>
 			    </el-table-column>
+
+                <el-table-column
+                        label="不承赊/承赊"
+                        >
+                    <template slot-scope="scope">
+                        <div>
+                            <el-switch v-model="scope.row.bearCreditStatus" on-text="开" off-text="关" active-value="Y"
+                                       inactive-value="N"
+                                       @change="toggleStatus(scope.row)"></el-switch>
+                        </div>
+                    </template>
+                </el-table-column>
+
+
 			    <el-table-column
 			        label="操作">
 			        <template slot-scope="scope">
@@ -63,31 +77,77 @@
 			  layout="total, prev, pager, next"
 			  :total="total"
 			  :page-size="params.page_size"
+			  :current-page.sync="params.current_page"
 			  @current-change="currentChange">
 			</el-pagination>
 		</div>
-		<el-dialog title="新增货主" :visible.sync="dialogFormVisible" width="800px" @close="dialogClose">
-			<el-form :model="addForm">
+		<el-dialog title="新增货主" :visible.sync="dialogFormVisible" width="800px" :before-close="dialogBeforeClose" @close="cancel">
+			<el-form ref="ruleForm" :model="addForm" :rules="rules" label-width="100px">
 				<el-row>
 				  	<el-col :span="12">
 				  		<div class="grid-content">
-							<label for="">货主名称：</label>
-							<el-input v-model="addForm.shipName" placeholder="请输入类型名称" style="width: 200px"></el-input>
-							
+							<el-form-item label="货主名称：" prop="shipName">
+							<el-input v-model.trim="addForm.shipName" placeholder="请输入货主名称" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="12">
 						<div class="grid-content clearfix">
-							<label for="">电话：</label>
-			        		<el-input v-model="addForm.phone" placeholder="请输入联系电话" style="width: 200px"></el-input>
+							<el-form-item label="电话：" prop="phone">
+			        		<el-input v-model.trim="addForm.phone" placeholder="请输入货主手机号" style="width: 200px"></el-input>
+			        		</el-form-item>
+				  		</div>
+				  	</el-col>
+				  	<el-col :span="12">
+				  		<div class="grid-content">
+							<el-form-item label="供应商名称：">
+							<el-input v-model="addForm.supplierName" placeholder="请输入供应商名称" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
+				  		</div>
+				  	</el-col>
+				  	<el-col :span="12">
+						<div class="grid-content clearfix">
+							<el-form-item label="账户信息：">
+			        		<el-input v-model="addForm.acount" placeholder="请输入银行卡号" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+			        		</el-form-item>
+				  		</div>
+				  	</el-col>
+				  	<el-col :span="12">
+				  		<div class="grid-content">
+				  			<el-form-item label="地址：">
+							<el-input v-model="addForm.address" placeholder="请输入地址" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
+				  		</div>
+				  	</el-col>
+				  	<!-- <el-col :span="12">
+						<div class="grid-content clearfix">
+							<el-form-item label="状态：">
+			        		<el-switch  
+			        		    v-model="addForm.status" 
+				        		active-value="Y" 
+				        		inactive-value="N"></el-switch>
+				        	</el-form-item>
+				  		</div>
+				  	</el-col> -->
+				  	<el-col :span="12">
+				  		<div class="grid-content">
+							<el-form-item label="开户信息：">
+							<el-input v-model="addForm.openAccountInfo" placeholder="请输入开户信息" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
+				  		</div>
+				  	</el-col>
+				  	<el-col :span="24">
+						<div class="grid-content clearfix">
+							<label for="" class="floatLeft" style="width: 88px;text-align: right;padding-right: 12px;">备注：</label>
+			        		<el-input v-model="addForm.remark" type="textarea" :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注信息" style="width: 584px" :maxlength="GLOBAL.maxTextare"></el-input>
 				  		</div>
 				  	</el-col>
 				</el-row>
 			   
 			</el-form>
 			<div slot="footer" class="dialog-footer">
-			    <el-button @click="dialogFormVisible = false" size='small'>取 消</el-button>
-			    <el-button type="primary" @click="addOwner" size='small'>确 定</el-button>
+			    <el-button @click="cancel" size='small'>取 消</el-button>
+			    <el-button type="primary" @click="addOwner" size='small' :loading="buttonLoading">确 定</el-button>
 			</div>
 		</el-dialog>
 	</div>
@@ -99,16 +159,41 @@
 	import { owner } from '@/services/apis/owner';
 	export default {
 		data() {
+			//手机校验
+			var checkTelephone = (rule, value, callback) => {
+                if (value != '') {
+                    var myreg = /^1[3|4|5|6|7|8|9][0-9]{9}$/;
+                    if (!myreg.test(value)) {
+                        callback(new Error(' 请输入有效的手机号码！'));
+                    } else {
+                        if (value.length != 11) {
+                            callback(new Error('请输入有效的手机号码！'));
+                        } else {
+                            callback();
+                        }
+                    }
+                } else {
+                    callback();
+                }
+            };
 			return {
 				dialogFormVisible:false,
 				loading:true,
+				buttonLoading:false,
 				form:{
 					name:''
 				},
+				//defaultAddForm:{},
 				addForm:{
 					sid:'',
 					shipName:'',
-					phone:''
+					phone:'',
+					supplierName:'',
+					acount:'',
+					address:'',
+					status:'Y',
+					openAccountInfo:'',
+					remark:'',
 				},
 				tableData: [{
 					uid: 1,
@@ -120,16 +205,62 @@
 		        }],
 		        total:null,
 		        params:{
-					page_size:20,
+					page_size:10,
 					current_page:1,
 					shipName:''
-                }
+                },
+                rules: {
+			        shipName: [
+			            { required: true, message: '请输入货主名称', trigger: 'blur' },
+			        ],
+			        phone: [
+			            { required: true, message: '请输入联系电话', trigger: 'blur' },
+			            { validator: checkTelephone, trigger: 'blur' }
+			        ],
+		        }
 			}
 		},
 		mounted() {
 			this.getList()
 		},
+		created(){
+			//this.defaultAddForm = JSON.parse(JSON.stringify(this.addForm));
+		},
 		methods:{
+            //切换状态
+            toggleStatus(row) {
+                let sid = row.sid;
+                let bearCreditStatus = row.bearCreditStatus;
+                let data ={
+                    sid:'',
+                    bearCreditStatus: '',
+                };
+                data.sid = sid;
+                data.bearCreditStatus = bearCreditStatus;
+
+                owner.editStatus(data)
+                    .then(response => {
+                        if(response.data.status == 'Y'){
+                            this.$message({
+                                message: '操作成功',
+                                type: 'success'
+                            });
+                        }
+                    })
+                    .catch(function (response) {
+                        console.log(response);
+                    });
+            },
+
+			dialogShow(){
+				this.dialogFormVisible = true;
+				this.buttonLoading = false;
+				this.defaultData(this.addForm)
+			},
+			search(){
+				this.params.current_page = 1;
+				this.getList();
+			},
 			getList(){
                 owner.list(this.params)
                 .then(response => {
@@ -139,28 +270,63 @@
                 });
 			},
 			addOwner(){
-				if (this.addForm.shipName && this.addForm.phone) {
-					owner.addEdit(this.addForm)
-	                .then(response => {
-	                	this.dialogFormVisible=false,
-	                	this.getList();
-	                });
-				}else{
-					this.$message({
-						message: '请输入完整的货主信息',
-						type: 'warning'
-					});
-				}
+				this.$refs.ruleForm.validate((valid) => {
+					if (valid) {
+						this.buttonLoading = true;
+						owner.addEdit(this.addForm)
+		                .then(response => {
+		                	if (response.data.status == "Y") {
+		                		this.$message({
+						          message: '添加成功',
+						          type: 'success'
+						        });
+						        this.getList();
+						        this.$refs.ruleForm.resetFields();
+			                	this.dialogFormVisible=false;
+		                	}else {
+		                		this.$message({
+						          message: response.data.error_msg,
+						          type: 'error'
+						        });
+		                		this.buttonLoading = false;
+		                	}
+
+		                });
+					}else{
+						this.$message({
+							message: '请输入货主信息',
+							type: 'warning'
+						});
+					}
+				})
 				
-			},
-			dialogClose(){
-				this.addForm.shipName = '';
-				this.addForm.phone = '';
+				
 			},
 			//切换分页
 			currentChange(val) {
 				this.params.current_page = val;
 				this.getList();
+			},
+			dialogBeforeClose(done){
+				this.$refs.ruleForm.resetFields();
+				done();
+			},
+			cancel(){
+				this.dialogFormVisible = false;
+				//this.defaultData(this.form);
+				this.$refs.ruleForm.resetFields();
+			},
+			//恢复默认数据
+			defaultData(form){
+				form.sid='';
+				form.shipName='';
+				form.phone='';
+				form.supplierName='';
+				form.acount='';
+				form.address='';
+				form.status='Y';
+				form.openAccountInfo='';
+				form.remark='';
 			},
 		}
 

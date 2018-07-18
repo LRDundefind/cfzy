@@ -1,7 +1,6 @@
 .train,
 .goods,
 .account,
-.trainDetail,
 .orderList{
 	.content{
 		background: #fff;
@@ -27,6 +26,13 @@
 
 .account,
 .trainDetail{
+	.el-dialog .el-dialog__body{
+		max-height: 500px;
+		overflow-y: scroll;
+	}
+	.el-dialog .el-dialog__body .el-row .el-col-12{
+	    padding-bottom: 0;
+	}
 	.el-row .grid-content{
 		label{
 			padding-left:5px;
@@ -56,19 +62,49 @@
 	.libraryItem{
 		margin-top: 20px;
 		border-top: 1px #ccc solid;
+		.el-row:first-child .el-col-6{
+			margin-top:20px;
+		}
 		.el-row:first-child .el-col-6:first-child{
 			border-left: 3px #67c23a solid;
 			padding-top:0;
-			margin-top:20px;
+			padding-bottom: 0;
+			margin-left: -3px;
 		}
 	}
 	.libraryItem:first-child{
 		border:none;
 		margin-top: 0;
 	}
+	.goodListClass{
+		border:1px solid #dcdfe6;
+		p{
+			line-height: 40px;
+			cursor: pointer;
+			padding-left: 40px;
+		}
+		p:hover{
+			background: #ecf5ff
+		}
+	}
 }
 
 .textRed{
 	font-size: 18px;
 	color: red;
+}
+
+.list-item{
+    padding: 5px 0;
+}
+
+.goodName{
+    width: 200px;
+    padding-right: 20px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
 }

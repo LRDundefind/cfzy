@@ -10,6 +10,14 @@ export const record = {
             data: serverMoudle(data)
         });
     },
+    //编辑档位
+    edit(data) {
+        return axios({
+            url: '/rest/CHENGFENG_SET_STALLS_INFO',
+            method: 'post',
+            data: serverMoudle(data)
+        });
+    },
     //获取市场列表
     marketList(data) {
         return axios({

@@ -54,6 +54,13 @@ export const home = {
             data: serverMoudle(params) || {}
         });
     },
-
+    //获取档位列表
+    gearList(params) {
+        return axios({
+            url: 'rest/CHENGFENG_GET_GEAR',
+            method: 'post',
+            data: serverMoudle(params) || {}
+        });
+    }
 
 }

@@ -1,6 +1,6 @@
 <template>
 	<div class="account">
-		<el-button class="goback-btn" icon="el-icon-arrow-left" @click="$router.go(-1)">返回</el-button> <label>车次管理/车次贷款结算</label>
+		<el-button class="goback-btn" icon="el-icon-arrow-left" @click="$router.go(-1)">返回</el-button> <label>车次管理/车次货款结算</label>
 		<!-- 内容 -->
 		<div class="content" v-loading="loading">
 			<el-card class="box-card">
@@ -59,25 +59,25 @@
 				  	<el-col :span="24">
 				  		<div class="grid-content">
 							<label for="">货品费用：</label>
-							<span class='textRed'>{{dataList.goodCost}}元</span>
+							<span class='textRed'>{{dataList.goodCost | format}}元</span>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="24">
 				  		<div class="grid-content">
 							<label for="">提成费用：</label>
-							<span class='textRed'>{{dataList.commission}}元</span>
+							<span class='textRed'>{{dataList.commission | format}}元</span>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="24">
 				  		<div class="grid-content">
 							<label for="">回扣：</label>
-							<span class='textRed'>{{dataList.rebates}}元</span>
+							<span class='textRed'>{{dataList.rebates | format}}元</span>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="24" v-for="item in dataList.storage" :key="item.id">
 				  		<div class="grid-content">
 							<label for="">{{item.expendName}}</label>
-							<span class='textRed'>{{item.amount}}元</span>
+							<span class='textRed'>{{item.amount | format}}元</span>
 				  		</div>
 				  	</el-col>
 		
@@ -88,10 +88,10 @@
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="24">
-				  		<div class="grid-content" style="width: 330px">
+				  		<div class="grid-content">
 							<label for="">结算金额：</label>
-							<span class='textRed'>{{settlement}}元</span>
-							<el-button type="success" size="mini" class="floatRight settlement-btn" @click="clear">计算结算金额</el-button>
+							<span class='textRed'>{{settlement | format}}元</span>
+							<el-button type="success" size="mini" class="settlement-btn m-l-40" @click="clear">计算结算金额</el-button>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="24">
@@ -149,14 +149,23 @@
                 })
           
 			},
+			//计算结算金额
 			clear(){
 				if (this.params.marketingCost) {
-					this.params.computer = 'Y';
+					if (this.params.marketingCost%1 === 0 && this.params.marketingCost >= 0) {
+						this.params.computer = 'Y';
 					
-	                train.clear(this.params)
-	                .then(response => {
-	                    this.settlement = response.data.results.payAmount
-	                })	
+		                train.clear(this.params)
+		                .then(response => {
+		                    this.settlement = response.data.results.payAmount
+		                })	
+					}else{
+						this.$message({
+							message: '固定代销费应为非负整数',
+							type: 'warning'
+						});
+					}
+					
                 }else{
                 	this.$message({
 						message: '请输入固定代销费',
@@ -164,8 +173,14 @@
 					});
                 }	
 			},
+			/**
+			 * 确定结算金额
+			 * @param  {[type]} id [车次id]
+			 * @return {[type]}    [description]
+			 */
 			sureSettlement(id){
 				if (this.settlement != '--') {
+					
 					this.params.computer = 'N';
 	                train.clear(this.params)
 	                .then(response => {

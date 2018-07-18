@@ -3,18 +3,18 @@
 	<div class="m-t-20">
 		<!--赊账收账筛选-->
 		<el-form :model="params" label-width="70px">
-			<el-form-item label="客户姓名" class="buyerName">
+			<el-form-item label="昵称" class="buyerName">
 				<el-input v-model="params.nickname"></el-input>
 			</el-form-item>
 		</el-form>
 		<!--列表和筛选按钮-->
 		<!--赛选按钮-->
 		<div class="screenLayout">
-			<el-button type="primary" icon="el-icon-search" size="small" @click="getList">筛选</el-button>
+			<el-button type="primary" icon="el-icon-search" size="small" @click="search">筛选</el-button>
 		</div>
 		<!--列表-->
-		<el-table :data="listData" stripe class="m-t-20" v-loading="loading">
-			<el-table-column type="index" label="序号">
+		<el-table :data="listData" stripe class="m-t-20 jrIE10" v-loading="loading">
+			<el-table-column type="index" label="序号" width="100">
 			</el-table-column>
 			<el-table-column prop="cusName" label="客户姓名">
 			</el-table-column>
@@ -24,6 +24,10 @@
 			</el-table-column>
 			<el-table-column prop="company" label="公司名称">
 			</el-table-column>
+
+            <el-table-column prop="bearerName" label="承赊方">
+            </el-table-column>
+
 			<el-table-column label="赊账总金额">
 				<template slot-scope="scope">
 					{{scope.row.creditAmount | format}}
@@ -41,7 +45,8 @@
 			</el-table-column>
 		</el-table>
 		<el-pagination class="m-t-20" 
-			@current-change="currentChange" 
+			@current-change="currentChange"
+			:current-page.sync="params.current_page" 
 			background 
 			layout="total,prev, pager, next" 
 			:page-size="params.page_size"
@@ -59,7 +64,7 @@
 					loading: true,
 					params: {
 						nickname: "",
-						page_size:20,
+						page_size:10,
 						current_page:1,
 					},
 					total: null, //分页总条数
@@ -67,6 +72,10 @@
 				}
 			},
 			methods: {
+				search(){
+					this.params.current_page = 1;
+					this.getList();
+				},
 				//获取赊账收款列表
 				getList(){
 					account.credit(this.params)
@@ -86,7 +95,10 @@
 					this.$router.push({
 						name: 'order/repayment',
 						params:{
-							repaymentId:row.cid
+							repaymentId:row.cid,
+                            bearerId:row.bearerId,
+                            bearerName:row.bearerName,
+                            notPayAmount:row.notPayAmount,
 						}
 					})
 				},

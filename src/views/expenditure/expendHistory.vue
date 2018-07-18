@@ -6,7 +6,7 @@
 			<el-form ref="form" :model="form" label-width="70px" class="clearfix" style="margin-top:40px;">
 				<div class="ub">
 					<el-form-item label="收款人" class="ub-f1">
-					    <el-input v-model="form.payeeName" placeholder="请输入收款人姓名"></el-input>
+					    <el-input v-model="form.payeeName" placeholder="请输入收款人姓名" :maxlength="GLOBAL.maxlength"></el-input>
 					</el-form-item>
 					<el-form-item label="车次" class="ub-f1" >
 					    <el-input v-model="form.trainsNum" placeholder="请输入车次"></el-input>
@@ -29,10 +29,10 @@
 					    </el-date-picker>
 					</el-form-item>
 					 <el-form-item label="支出金额">
-						<el-input v-model="form.amount_min" size="small"></el-input>
+						<el-input v-model="form.amount_min"  :maxlength="GLOBAL.maxNumber"></el-input>
 					</el-form-item>
 					<el-form-item label="-" label-width="30px">
-						<el-input v-model="form.amount_max" size="small"></el-input>
+						<el-input v-model="form.amount_max"  :maxlength="GLOBAL.maxNumber"></el-input>
 					</el-form-item>
 				</div>
 			</el-form>
@@ -103,7 +103,7 @@
 				</span>
 			</el-dialog> -->
 
-		    <el-pagination class="m-t-20" @current-change="currentChange" background layout="total, prev, pager, next" :total="total">
+		    <el-pagination class="m-t-20" @current-change="currentChange" :current-page.sync="current_pages" background layout="total, prev, pager, next" :total="total">
 			</el-pagination>
 		</div>
 	
@@ -168,6 +168,7 @@
 					this.getlistdatd();
 				},
 			search(){
+				this.current_pages = 1;
 				this.getlistdatd();
 			},
 			getlistdatd(){

@@ -5,12 +5,9 @@
 		padding: 20px;
 		margin-top: 10px;
 	}
-	.el-form-item {
-        width: calc((100% - 90px) / 4);
-        .el-select {
-            width: 100%;
-        }
-    }
+	.el-dialog .el-dialog__body .el-row .el-col-12{
+		padding-bottom: 0;
+	}
 }
 .ownerDetail{
 	.el-row .grid-content{
@@ -26,4 +23,9 @@
 			float: left;
 		}
 	}
+}
+
+.owner .el-dialog .el-dialog__body .el-row .el-col-12,
+.ownerDetail .el-dialog .el-dialog__body .el-row .el-col-12{
+    height: 62px;
 }

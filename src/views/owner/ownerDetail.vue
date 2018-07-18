@@ -7,7 +7,7 @@
 			<el-card class="box-card">
 				<div slot="header" class="clearfix">
 				    <span>货主信息</span>
-				    <el-button v-show='!isEdit' style="float: right; padding: 3px 0" type="text" @click="dialogFormVisible = true">编辑</el-button>
+				    <el-button v-show='!isEdit' style="float: right; padding: 3px 0" type="text" @click="editOwner">编辑</el-button>
 				   
 				</div>
 				<el-row>
@@ -41,9 +41,11 @@
 							<span>{{dataInfo.address}}</span>
 				  		</div>
 				  	</el-col>
-				  	<el-col :span="12">
+				  	<!-- <el-col :span="12">
 				  		<div class="grid-content">
 							<label for="">状态：</label>
+							<span v-if="dataInfo.status=='Y'">上架</span>
+							<span v-else>下架</span>
 							<el-switch  
 								disabled
 			        		    v-model="dataInfo.status"
@@ -52,7 +54,7 @@
 				        		active-value="Y" 
 				        		inactive-value="N"></el-switch>
 				  		</div>
-				  	</el-col>
+				  	</el-col> -->
 				  	<el-col :span="12">
 				  		<div class="grid-content">
 							<label for="">开户信息：</label>
@@ -68,61 +70,64 @@
 				</el-row>
 			</el-card>
 			<el-dialog title="编辑货主" :visible.sync="dialogFormVisible" width="800px">
-				<el-form :model="editForm">
+				<el-form ref="ruleForm" :model="editForm" :rules="rules" label-width="102px">
 					<el-row>
 					  	<el-col :span="12">
 					  		<div class="grid-content">
-								<label for="">货主名称：</label>
-								<el-input v-model="editForm.shipName" placeholder="请输入类型名称" style="width: 200px"></el-input>
-								
+								<el-form-item label="货主名称：" prop="shipName">
+								<el-input v-model.trim="editForm.shipName" placeholder="请输入类型名称" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+								</el-form-item>
 					  		</div>
 					  	</el-col>
 					  	<el-col :span="12">
 							<div class="grid-content clearfix">
-								<label for="">电话：</label>
-				        		<el-input v-model="editForm.phone" placeholder="请输入联系电话" style="width: 200px"></el-input>
+								<el-form-item label="电话：" prop="phone">
+				        		<el-input v-model.trim="editForm.phone" placeholder="请输入联系电话" style="width: 200px"></el-input>
+				        		</el-form-item>
 					  		</div>
 					  	</el-col>
 					  	<el-col :span="12">
 					  		<div class="grid-content">
-								<label for="">供应商名称：</label>
-								<el-input v-model="editForm.supplierName" placeholder="请输入供应商名称" style="width: 200px"></el-input>
-								
+								<el-form-item label="供应商名称：">
+								<el-input v-model="editForm.supplierName" placeholder="请输入供应商名称" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+								</el-form-item>
 					  		</div>
 					  	</el-col>
 					  	<el-col :span="12">
 							<div class="grid-content clearfix">
-								<label for="">账户信息：</label>
-				        		<el-input v-model="editForm.acount" placeholder="请输入账户信息" style="width: 200px"></el-input>
+								<el-form-item label="账户信息：">
+				        		<el-input v-model="editForm.acount" placeholder="请输入银行卡号" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+				        		</el-form-item>
 					  		</div>
 					  	</el-col>
 					  	<el-col :span="12">
 					  		<div class="grid-content">
-								<label for="">地址：</label>
-								<el-input v-model="editForm.address" placeholder="请输入地址" style="width: 200px"></el-input>
-								
+								<el-form-item label="地址：">
+								<el-input v-model="editForm.address" placeholder="请输入地址" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+								</el-form-item>
 					  		</div>
 					  	</el-col>
-					  	<el-col :span="12">
+					  	<!-- <el-col :span="12">
 							<div class="grid-content clearfix">
-								<label for="">状态：</label>
+								<el-form-item label="状态：">
 				        		<el-switch  
 				        		    v-model="editForm.status" 
 					        		active-value="Y" 
 					        		inactive-value="N"></el-switch>
+					        	</el-form-item>
 					  		</div>
-					  	</el-col>
-					  	<el-col :span="24">
+					  	</el-col> -->
+					  	<el-col :span="12">
 					  		<div class="grid-content">
-								<label for="">开户信息：</label>
-								<el-input v-model="editForm.openAccountInfo" placeholder="请输入开户信息" style="width: 200px"></el-input>
-								
+								<el-form-item label="开户信息：">
+								<el-input v-model="editForm.openAccountInfo" placeholder="请输入开户信息" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+								</el-form-item>
 					  		</div>
 					  	</el-col>
 					  	<el-col :span="24">
 							<div class="grid-content clearfix">
-								<label for="" class="floatLeft">备注：</label>
-				        		<el-input v-model="editForm.remark" type="textarea":autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注信息" style="width: 584px"></el-input>
+								<label for="" class="floatLeft" style="width: 88px;text-align: right;padding-right: 12px;">备注：</label>
+				        		<el-input v-model="editForm.remark" type="textarea":autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入备注信息" style="width: 584px" :maxlength="GLOBAL.maxTextare"></el-input>
 					  		</div>
 					  	</el-col>
 					</el-row>
@@ -177,7 +182,7 @@
 				        </template>
 				    </el-table-column>
 				    <el-table-column
-				        prop="status"
+				        prop="settleStatus"
 				        label="结算状态">
 				    </el-table-column>
 				    <el-table-column
@@ -187,7 +192,7 @@
 					        	<el-button type="danger" plain size="mini">查看</el-button>
 					        </router-link>
 					        <router-link :to="{ name: 'train/account',params: { tid: scope.row.tid }}">
-				        		<el-button type="danger" plain size="mini">结算</el-button>
+				        		<el-button type="danger" plain size="mini" v-if="scope.row.settleStatus == '待结算'">结算</el-button>
 				        	</router-link>
 	        			</template>
 				    </el-table-column>
@@ -248,13 +253,33 @@
 <script>
 	import '@/style/owner/owner.scss';
 	import { owner } from '@/services/apis/owner';
+	import { keyValue } from '@/services/apis/key-value';
 	export default {
 		data() {
+			//手机校验
+			var checkTelephone = (rule, value, callback) => {
+                if (value != '') {
+                    var myreg = /^1[3|4|5|6|7|8|9][0-9]{9}$/;
+                    if (!myreg.test(value)) {
+                        callback(new Error(' 请输入有效的手机号码！'));
+                    } else {
+                        if (value.length != 11) {
+                            callback(new Error('请输入有效的手机号码！'));
+                        } else {
+                            callback();
+                        }
+                    }
+                } else {
+                    callback();
+                }
+            };
 			return {
 				dialogFormVisible:false,
 				isEdit:false,
 				loading:true,
 				dataInfo:{},
+				keyValueData:{},
+				carStauts:[],
 				transactionData:[],
 				remittance_recordData:[],
 				editForm:{
@@ -270,22 +295,37 @@
 				},
 				params1:{
 					sid:this.$route.params.uid,
-                	page_size:3,
+                	page_size:10,
 					current_page:1
 				},
 				params2:{
 					sid:this.$route.params.uid,
-                	page_size:3,
+                	page_size:10,
 					current_page:1
 				},
 				total1:null,
 				total2:null,
+				rules: {
+			        shipName: [
+			            { required: true, message: '请输入货主名称', trigger: 'blur' },
+			        ],
+			        phone: [
+			            { required: true, message: '请输入联系电话', trigger: 'blur' },
+			            { validator: checkTelephone, trigger: 'blur' }
+			        ],
+		        }
 			}
 		},
 		mounted() {
-			this.getInfo();
-			this.getOwnerTrans();
-			this.getOwnerRemit();
+			keyValue()
+            .then(response => {
+                this.keyValueData = response.data.results
+                this.carStauts = this.keyValueData.car_status;
+                this.getInfo();
+				this.getOwnerTrans();
+				this.getOwnerRemit();
+            })
+			
 		},
 		updated(){
 			this.loading = false;
@@ -296,12 +336,6 @@
                 owner.info({sid:this.$route.params.uid})
                 .then(response => {
                 	this.dataInfo = response.data.results;
-                	for (var Key1 in this.editForm){
-                		for (var Key2 in this.dataInfo){
-                			if (Key1 == Key2) this.editForm[Key1] = this.dataInfo[Key2]
-                		}
-				     	
-				    }
                 });
             },
             getOwnerTrans(){
@@ -309,7 +343,16 @@
                 owner.ownerTrans(this.params1)
                 .then(response => {
                 	this.transactionData = response.data.results.list;
-                	this.total1 = response.data.results.total
+                	this.total1 = response.data.results.total;
+                	if (this.transactionData) {
+	                	for (var i = 0; i < this.transactionData.length; i++) {
+			            	for (var j = 0; j < this.keyValueData.car_status.length; j++) {
+			            		if(this.transactionData[i].settleStatus == this.keyValueData.car_status[j].key){
+			            			this.transactionData[i].settleStatus = this.keyValueData.car_status[j].value
+			                	}
+			            	}
+			            }
+			        }
                 });
             },
             getOwnerRemit(){
@@ -320,19 +363,30 @@
                 	this.total2 = response.data.results.total
                 });
             },
+            editOwner(){
+            	this.dialogFormVisible = true;
+            	for (var Key1 in this.editForm){
+            		for (var Key2 in this.dataInfo){
+            			if (Key1 == Key2) this.editForm[Key1] = this.dataInfo[Key2]
+            		}
+			     	
+			    }
+            },
 			addOwner(){
-				if (this.editForm.phone) {
-					owner.addEdit(this.editForm)
-	                .then(response => {
-	                	this.dialogFormVisible=false,
-	                	this.getInfo();
-	                });
-				}else{
-					this.$message({
-						message: '请输入手机号',
-						type: 'warning'
-					});
-				}
+				this.$refs.ruleForm.validate((valid) => {
+					if (valid) {
+						owner.addEdit(this.editForm)
+		                .then(response => {
+		                	this.dialogFormVisible=false,
+		                	this.getInfo();
+		                });
+					}else{
+						this.$message({
+							message: '请输入货主信息',
+							type: 'warning'
+						});
+					}
+				})
 			},
 			currentChange1(val){
 				this.params1.current_page = val;

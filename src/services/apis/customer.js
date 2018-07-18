@@ -42,5 +42,12 @@ export const customer = {
             method: 'post',
             data: serverMoudle(data)
         });
+    },getCredit(data){
+        // 获取赊账情况
+        return axios({
+            url: '/rest/CHENGFENG_GET_CUSTOMER_CREDIT',
+            method: 'post',
+            data: serverMoudle(data)
+        });
     },
 };

@@ -10,6 +10,7 @@ import vuex from 'vuex'
 //import store from './store'
 import md5 from 'js-md5';
 let Base64 = require('js-base64').Base64;
+import Cookies from 'js-cookie'
 //ElementUI
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
@@ -17,6 +18,9 @@ import 'element-ui/lib/theme-chalk/index.css';
 import TitleBar from '@/components/TitleBar';
 //过滤器
 import * as filters from '@/filters'; // 全局vue filter
+//设置全局输入框限制长度
+import global_ from './util/setInput';
+Vue.prototype.GLOBAL = global_//挂载到Vue实例上面
 
 import 'babel-polyfill'
 
@@ -27,9 +31,9 @@ import '@/style/elementUI.scss';
 //注册ElementUI主键
 Vue.use(ElementUI);
 
-// Vue.use(VueSocketio, 'ws://192.168.0.203:8888?token=asd123');
+//Vue.use(VueSocketio, 'http://47.106.86.30:8080/rest/user/7ae860daef924fbfbf58b654538b3396/msg');
 
-//注册标题主键
+//注册标题组件
 Vue.component('title-bar', TitleBar);
 
 // register global utility filters.

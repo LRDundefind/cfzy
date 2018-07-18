@@ -1,0 +1,28 @@
+.salesOrder{
+	.content{
+		margin-top: 10px;
+	}
+	.box-card .el-form-item{
+		width: 400px;
+	}
+	.goodsTag{
+		cursor: pointer;
+		border-left:1px solid #dcdfe6;
+		color: #ccc;
+	}
+	.el-checkbox-button.is-checked .el-checkbox-button__inner{
+		position: relative;
+		background-color: #33d57c;
+    	border-color: #33d57c;
+		.el-alert__icon.el-icon-success{
+			position: absolute;
+			top: -8px;
+			left: -8px;
+		}
+	}
+	
+}
+.goodInfoDialog .el-dialog .el-dialog__body{
+	max-height: 500px;
+	overflow-y: scroll;
+}

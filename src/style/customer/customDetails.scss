@@ -10,15 +10,19 @@
             width: 95px;
         }
         .balckName {
-            width: 500px;
-            line-height: 2;
+            width: 70%;
+            line-height: 1.8;
+            word-wrap: break-word;
+            word-break: normal;
         }
         .remark {
-            width: 80%;
-            line-height: 2;
+            width: 70%;
+            line-height: 1.8;
+            word-wrap: break-word;
+            word-break: normal;
         }
         .picture {
-            padding: 5% 25% 0;
+            padding: 0 25% 5% 25%;
         }
         .dealName {
             min-width: 150px;

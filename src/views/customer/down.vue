@@ -10,6 +10,8 @@
                     <h2 class="ter p10">{{dangweiName}}催账单</h2>
                     <div class="ub ub-pc">
                         <div class="ub-f1 h25">客户名称：{{listHead.nickname}}</div>
+                        <div class="ub-f1 ter h25" v-if="listHead.shipName != ''">货主名称：{{listHead.shipName}}</div>
+
                         <div class="ub-f1 tri h25" >联系电话：{{listHead.phone}}</div>
                     </div>
                     <div class="ub ub-pc">
@@ -22,7 +24,7 @@
                             <tr>
                                 <th>订单编号</th>
                                 <th>销售日期</th>
-                                <th>货品费用</th>
+                                <th>货品</th>
                                 <th>数量</th>
                                 <th>单价</th>
                                 <th>货款</th>
@@ -35,30 +37,30 @@
                         </thead>
                         <tbody>
                             <tr v-for="item in tableData6" :key="item.id">
-                                <td :rowspan="item.orderNospan" :class="{hidden: item.orderNodis}">{{ item.orderNo }}</td>
-                                <td :rowspan="item.placeOrderTimespan" :class="{hidden: item.placeOrderTimedis}">{{ item.placeOrderTime}}</td>
-                                <td>{{ item.goodName}}</td>
-                                <td>{{ item.weighCost}}</td>
-                                <td>{{ item.price}}</td>
-                                <td>{{ item.goodAmount}}</td>
-                                <td>{{ item.packCost}}</td>
-                                <td :rowspan="item.weighCostspan" :class="{hidden: item.weighCostdis}">{{ item.weighCost}}</td>
-                                <td :rowspan="item.deliveryCostspan" :class="{hidden: item.deliveryCostdis}">{{ item.deliveryCost}}</td>
-                                <td :rowspan="item.salesAmountspan" :class="{hidden: item.salesAmountdis}">{{ item.salesAmount}}</td>
-                                <td :rowspan="item.grand_totalspan" :class="{hidden: item.grand_totaldis}">{{ item.grand_total}}</td>
+                                <td v-if="item.orderNo!==false" :rowspan="item.rowspan">{{ item.orderNo }}</td>
+                                <td v-if="item.placeOrderTime!==false" :rowspan="item.rowspan">{{ item.placeOrderTime }}</td>
+                                <td >{{ item.goodName }}</td>
+                                <td >{{ item.good_quantity }}</td>
+                                <td >{{ item.price }}</td>
+                                <td >{{ item.goodAmount }}</td>
+                                <td >{{ item.packCost }}</td>
+                                <td v-if="item.weighCost!==false" :rowspan="item.rowspan" >{{ item.weighCost }}</td>
+                                <td v-if="item.deliveryCost!==false" :rowspan="item.rowspan" >{{ item.deliveryCost }}</td>
+                                <td v-if="item.salesAmount!==false" :rowspan="item.rowspan" >{{ item.salesAmount }}</td>
+                                <td v-if="item.grand_total!==false" :rowspan="item.rowspan" >{{ item.grand_total }}</td>
                             </tr>
                             <tr>
-                                <td>合计</td>
+                                <td >合计</td>
+                                <td ></td>
+                                <td></td>
+                                <td>{{listHead.total_amount}}</td>
                                 <td></td>
                                 <td></td>
-                                <td>{{this.listHead.total_amount}}</td>
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>{{this.listHead.total_salesAmount}}</td>
-                                <td>{{this.listHead.total_grand}}</td>
+                                <td>{{listHead.total_salesAmount}}</td>
+                                <td>{{listHead.total_grand}}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -82,7 +84,7 @@
                             label="货品名称">
                         </el-table-column>
                         <el-table-column
-                            prop="weighCost"
+                            prop="good_quantity"
                             label="数量">
                         </el-table-column>
                         <el-table-column
@@ -153,6 +155,23 @@
     </div>
 </template>
 <style scoped>
+@page 
+    {
+        size:  auto;   /* auto is the initial value */
+        margin: 5mm;  /* this affects the margin in the printer settings */
+    }
+
+    html
+    {
+        background-color: #FFFFFF; 
+        margin: 10px;  /* this affects the margin on the html before sending to printer */
+    }
+
+    body
+    {
+    
+        margin: 10mm 15mm 10mm 15mm; /* margin you want for the content */
+    }
 .p10{
     padding: 10px 0;
 }
@@ -213,11 +232,13 @@ td{
 <script>
     import '@/style/customer/customDetails.scss';
     import {customer} from '@/services/apis/customer.js'
+     import Cookies from 'js-cookie'
     export default {
         name: 'customDetails',
         data() {
             return {
                 id: '',
+                bearerId:'',
                 dangweiName:'',
                 listHead:{},
                 tableData6:[]
@@ -225,7 +246,8 @@ td{
         },
         mounted() {
             this.id = this.$route.params.id;
-            this.dangweiName=JSON.parse(window.localStorage.getItem('gid'))[0].gearName;
+            this.bearerId = this.$route.params.bearerId;
+            this.dangweiName=JSON.parse(Cookies.get('gid')).gearName;
             //初始化数据
             this.getInfo(this.id);
         },
@@ -233,30 +255,56 @@ td{
             //获取催账单详情
             getInfo(){
                 let params = {
-                    cid: this.id
+                    cid: this.id,
+                    bearerId:this.bearerId,
                 };
 
-                customer.downLIST(params).then(response =>{                   
+                customer.downLIST(params).then(response =>{     
                     this.listHead=response.data.results;
-                    // 数据处理合并
-                    let newlisr=[];
-                    for(var i=0,len = this.listHead.list.length; i<this.listHead.list.length;i++){
-                          var newGoods = []
-                            for(var j = 0,len2 = this.listHead.list[i].goods.length;j<len2;j++){
-                                this.listHead.list[i].goods[j]['weighCost'] = this.listHead.list[i]['weighCost']; 
-                                this.listHead.list[i].goods[j]['grand_total'] = this.listHead.list[i]['grand_total']; 
-                                this.listHead.list[i].goods[j]['salesAmount'] = this.listHead.list[i]['salesAmount']; 
-                                this.listHead.list[i].goods[j]['deliveryCost'] = this.listHead.list[i]['deliveryCost'];
-                                this.listHead.list[i].goods[j]['placeOrderTime'] = this.listHead.list[i]['placeOrderTime'];
-                                newGoods.push(this.listHead.list[i].goods[j])
-                            }
-                        newlisr.push(...newGoods)
-                    }
+                    var goodsList=[];
+                    for (var i = 0; i < this.listHead.list.length; i++) {
+                          var list=this.listHead.list[i];
+                          for (var j = 0; j <list.goods.length; j++) {
+                              var goods=list.goods[j];
+                              if(j==0){
+                                goods.rowspan=list.goods.length;
+                          goods.orderNo=list.orderNo;
+                          goods.placeOrderTime=list.placeOrderTime;
+                          goods.weighCost=list.weighCost;
+                          goods.deliveryCost=list.deliveryCost;
+                          goods.salesAmount=list.salesAmount;
+                          goods.grand_total=list.grand_total;
+                          }else {
 
-                    this.combineCell(newlisr)
-                    this.tableData6=newlisr;
+                          goods.orderNo=false;
+                          goods.placeOrderTime=false;
+                          goods.weighCost=false;
+                          goods.deliveryCost=false;
+                          goods.salesAmount=false;
+                          goods.grand_total=false;
+                          }
+                          goodsList.push(goods);
+                          }
+                      }  
+                    this.tableData6=goodsList;
+                    // 数据处理合并
+                    // let newlisr=[];
+                    // for(var i=0,len = this.listHead.list.length; i<this.listHead.list.length;i++){
+                    //       var newGoods = []
+                    //         for(var j = 0,len2 = this.listHead.list[i].goods.length;j<len2;j++){
+                    //             this.listHead.list[i].goods[j]['weighCost'] = this.listHead.list[i]['weighCost']; 
+                    //             this.listHead.list[i].goods[j]['grand_total'] = this.listHead.list[i]['grand_total']; 
+                    //             this.listHead.list[i].goods[j]['salesAmount'] = this.listHead.list[i]['salesAmount']; 
+                    //             this.listHead.list[i].goods[j]['deliveryCost'] = this.listHead.list[i]['deliveryCost'];
+                    //             this.listHead.list[i].goods[j]['placeOrderTime'] = this.listHead.list[i]['placeOrderTime'];
+                    //             newGoods.push(this.listHead.list[i].goods[j])
+                    //         }
+                    //     newlisr.push(...newGoods)
+                    // }
+
+                    // this.combineCell(newlisr)
                     
-                    console.log(this.tableData6)
+                    // console.log(this.tableData6)
                 })
             },
            combineCell(list) {
@@ -278,7 +326,6 @@ td{
                         k = i;
                     }
                 }
-                console.log(list)
                 return list;
             },
             print(){
@@ -286,10 +333,29 @@ td{
                 var prnhtml = document.getElementById('print').innerHTML;
                 window.document.body.innerHTML = prnhtml;
                 window.print();
+                //  if (!!window.ActiveXObject || "ActiveXObject" in window) { //是否ie
+                //     this.remove_ie_header_and_footer();
+                //     }
+                // else{
+                //     window.print();
+                // }
+                    
+                    
+
                 window.document.body.innerHTML = bdhtml;
                 window.location.reload();
             },
-          
+             remove_ie_header_and_footer() {
+                var hkey_path;
+                hkey_path = "HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\PageSetup\\";
+                try {
+                var RegWsh = new ActiveXObject("WScript.Shell");
+                    RegWsh.RegWrite(hkey_path + "header", "");
+                    RegWsh.RegWrite(hkey_path + "footer", "");
+                 } 
+                    catch (e) {
+                    }
+                }
         },
     }
 </script>

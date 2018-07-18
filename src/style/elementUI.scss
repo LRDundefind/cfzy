@@ -49,3 +49,10 @@ $themeColor: #32d57b;
   height: 178px;
   display: block;
 }
+.el-card.box-card .el-col,
+.el-dialog__wrapper .el-dialog__body .el-row .el-col{
+    padding-bottom: 20px;
+}
+.el-range-editor .el-range-input {
+    line-height: 32px;
+}

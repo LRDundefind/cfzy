@@ -10,6 +10,8 @@ import trainDetail from '@/views/inventory/trainDetail'
 import orderList from '@/views/inventory/orderList'
 //打印单预览
 import statement from '@/views/inventory/statement'
+//打印车次结算单
+import carPrint from '@/views/inventory/carPrint'
 
 export default [{
 		path: 'train',
@@ -47,6 +49,15 @@ export default [{
 		meta: {
 			showSidebar: false
 		}
-	}]
+	},
+    {
+        path: 'train/carPrint/:tid',
+        name: 'train/carPrint',
+        component: carPrint,
+        meta: {
+            showSidebar: false
+        }
+    }
+	]
 
 	

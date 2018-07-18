@@ -1,7 +1,5 @@
-.goodsType,
-.record,
+
 .spendingType,
-.staff,
 .staffDetail{
 	.content{
 		background: #fff;
@@ -15,7 +13,19 @@
     .selectData.el-form-item {
         width: calc((100% - 90px) / 2 + 30px);
     }
+
 }
+
+.staff .pj{
+    .el-form-item {
+        width: calc((100% - 90px) / 4);
+        .el-select {
+            width: 100%;
+        }
+    }
+  
+}
+
 
 .staff,
 .staffDetail,
@@ -33,4 +43,13 @@
             float: left;
         }
     }
+}
+
+.record .el-dialog .el-dialog__body .el-row .el-col-12,
+.goodsType .el-dialog .el-dialog__body .el-row .el-col-12{
+    padding-bottom: 0;
+    height: 62px;
+}
+.goodsType .content{
+    background: #fff;
 }

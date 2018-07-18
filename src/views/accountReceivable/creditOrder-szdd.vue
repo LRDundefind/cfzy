@@ -34,7 +34,13 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item class="ub-f2 m-l-30 m-r-30" label="下单时间">
-					<el-date-picker value-format="timestamp" format="yyyy-MM-dd" v-model="timeQuantum" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期">
+					<el-date-picker 
+						value-format="yyyy-MM-dd" 
+						v-model="timeQuantum" 
+						type="daterange" 
+						range-separator="至" 
+						start-placeholder="开始日期" 
+						end-placeholder="结束日期">
 					</el-date-picker>
 				</el-form-item>
 			</div>
@@ -72,11 +78,13 @@
 			<el-table-column label="操作">
 				<template slot-scope="scope">
 					<el-button @click="onClickItem(scope.$index, scope.row)" size="mini" type="danger" plain>查看</el-button>
+					<el-button v-if="scope.row.status!='暂存'" @click="print(scope.$index, scope.row)" size="mini" type="danger" plain>打印结算单</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
 		<el-pagination class="m-t-20" 
 		@current-change="currentChange" 
+		:current-page.sync="listQuery.current_page"
 		background 
 		layout="total, prev, pager, next" 
 		:page-size="listQuery.page_size"
@@ -93,9 +101,9 @@
 		data() {
 				return {
 					loading:true,
-					keyValueData:{},
-					msList:[],
-					timeQuantum:[],
+					keyValueData:{},  //保存键值对信息
+					msList:[],    //卖手数组
+					timeQuantum:[],   //保存检索时的开始和结束时间
 					listQuery:{  //请求参数
 						orderType:'order_credit',
 						orderNo:'',	//订单id
@@ -108,7 +116,7 @@
 						amount_min:'',	//订单价格 小
 						amount_max:'',	//订单价格 大
 						status:'',
-						page_size:20,
+						page_size:10,
 						current_page:1,
 					},
 					total: null, //分页总条数
@@ -136,7 +144,9 @@
 	              
 				},
 				search(){
+					this.listQuery.current_page = 1;
 					var params = this.listQuery
+					//设置起始时间
 					if(this.timeQuantum==null){
 						params.start_time='';
 						params.end_time='';
@@ -145,6 +155,7 @@
 						params.start_time = this.timeQuantum[0];
 						params.end_time = this.timeQuantum[1];
 					}
+					//设置最大值和最小值
 					if (params.amount_min && params.amount_max=='') {
 						params.amount_max = params.amount_min
 					}
@@ -181,15 +192,25 @@
 						},
 						query: { type:'order_credit'}
 					});
+				},
+				//打印结算单
+				print(index, row){
+					this.$router.push({
+						name: 'order/orderSettlementSheet',
+						params: {
+							oid: row.oid
+						},
+						query: { type:'order_credit'}
+					});
 				}
 			},
 			mounted() {
 				//获取键值
 				keyValue()
 	            .then(response => {
-	                this.keyValueData = response.data.results
+	                this.keyValueData = response.data.results;
+	                this.getList();
 	            })
-				this.getList();
 				this.getSellinglist();
 			},
 	}

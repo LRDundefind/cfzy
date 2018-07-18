@@ -51,9 +51,36 @@ export const staff = {
         });
     },
     // 获取卖手信息
+    // get_PAYmessage(data) {
+    //     return axios({
+    //         url: '/rest/CHENGFENG_GET_SELE',
+    //         method: 'post',
+    //         data: serverMoudle(data)
+    //     });
+    // },
+
+
+    //v2.4接口
+    //获取员工信息
     get_PAYmessage(data) {
         return axios({
-            url: '/rest/CHENGFENG_GET_SELE',
+            url: '/rest/CHENGFENG_GET_EUSER_CHECK',
+            method: 'post',
+            data: serverMoudle(data)
+        });
+    },
+    //添加员工
+    addStaff(data){
+        return axios({
+            url: '/rest/CHENGFENG_SET_EMPLOYEE',
+            method: 'post',
+            data: serverMoudle(data)
+        });
+    },
+    //编辑员工
+    EditStaff(data){
+        return axios({
+            url: '/rest/CHENGFENG_SET_EMPLOYEEINFO',
             method: 'post',
             data: serverMoudle(data)
         });

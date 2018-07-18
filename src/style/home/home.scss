@@ -81,6 +81,41 @@ a{
 }
 
 // 档主首页
+
+.balance{
+    background-color: rgb(51,213,124);
+    height: 125px;
+    margin-bottom: 40px;
+    padding: 40px 25px 40px 10px;
+    color: white;
+    .stall{
+        font-size: 48px;
+    }
+    .equal{
+        font-size: 48px;
+    }
+    .stall_word{
+        font-size: 18px;
+        padding-top: 20px;
+    }
+
+    .plus{
+        padding-top: 8px;
+        font-size: 35px;
+    }
+    .digital{
+        font-size: 28px;
+        padding-top: 15px;
+
+    }
+    .digital_word{
+        font-size: 18px;
+        padding-top: 30.52px;
+    }
+
+}
+
+
 //当日统计
 .home .line {
     background-color: #dedede !important;
@@ -95,7 +130,8 @@ a{
     background-repeat: no-repeat;
     background-size: 100% 100%;
     .money {
-        font-size: 48px;
+        font-weight: 500;
+        font-size: 46px;
         line-height: 48px;
         height: calc(100% - 18px);
     }

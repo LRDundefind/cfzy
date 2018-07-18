@@ -5,20 +5,25 @@
         padding-right: 30px;
     }
 }
-.tab .el-col {
+.tab .el-col .el-aside{
     padding-top: 20px;
 }
 .tab .el-aside{
     background: #535a5d;
+    position: fixed;
+    height: -moz-calc(100% - 60px);
+    height: -webkit-calc(100% - 60px);
+    height: calc(100% - 60px);
 }
 .tab .el-aside .el-menu {
     background: #535a5d;
     border: none;
+    .el-submenu,
     .el-menu-item{
         line-height: 50px;
-        font-size: 18px;
         span{
             color: #fff;
+            font-size: 18px;
         }
     }
     .el-submenu {
@@ -31,12 +36,16 @@
         .el-menu-item {
             padding-left: 51px !important;
             min-width: 185px;
-            font-size: 12px;
-            color: #666 !important;
+            font-size: 14px;
+            color: #fff !important;
         }
     }
 }
-.tab .el-aside .el-menu-item:hover {
+
+.tab .el-aside .el-menu .el-menu-item:hover{
+    background-color: #333;
+}
+.tab .el-aside .el-menu .el-submenu__title:hover {
     background-color: #333;
 }
 .tab .el-aside .el-menu-item.is-active {
@@ -53,7 +62,7 @@
     top: 0;
     bottom: 0;
 }
-//设置图标
+/*//设置图标*/
 .tab .el-icon-menu {
     color: transparent !important;
     background-repeat: no-repeat;
@@ -135,7 +144,23 @@
 .tab .is-active .journal-icon {
     background-image: url("../../assets/tab/shouye_caozuorizhi_green_icon-@2x.png");
 }
-//右侧内容
+/*//右侧内容*/
 .tab .el-main {
     background-color: #f5f5f5;
+    min-width: 1000px;
+    position: absolute;
+    right: 0;
+    height: 100%;
+    /*height: -moz-calc(100% - 60px);
+    height: -webkit-calc(100% - 60px);
+    height: calc(100% - 60px);*/
+    overflow-x: hidden;
+}
+.tab .el-container{
+    width: 100%;
+    position: absolute;
+    top: 60px;
+    height: -moz-calc(100vh - 60px);
+    height: -webkit-calc(100vh - 60px);
+    height: calc(100vh - 60px);
 }

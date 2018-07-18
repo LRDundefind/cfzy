@@ -90,7 +90,7 @@
 				  	</el-col>
 				  	<el-col :span="12">
 				  		<div class="grid-content">
-							<label for="">起始地址：</label>
+							<label for="">发货地点：</label>
 							<span>{{dataList.logistics_info.startAddress}}</span>
 				  		</div>
 				  	</el-col>
@@ -119,7 +119,7 @@
 							<div class='imgBox' :style="{backgroundImage:`url(${dataList.logistics_info.originProve})`}">
 								<!-- <img :src="dataList.logistics_info.origin_prove" alt=""> -->
 							</div>
-							<p>产品证明</p>
+							<p>产地证明</p>
 						</div>
 				  	</el-col>
 				  	<el-col :span="8" class='textCenter'>
@@ -138,7 +138,7 @@
 				  	</el-col>
 				</el-row>
 				<div class="m-t-20 clearfix">
-					<el-button type="primary" plain class="floatRight" @click='dialogFormVisible = true'>修改信息</el-button>
+					<el-button type="primary" plain class="floatRight" @click='editLogistics'>修改信息</el-button>
 				</div>
 			</el-card>
 			<!-- 货品信息 -->
@@ -160,12 +160,20 @@
 				        label="货品数量"
 				        width="180">
 				        <template slot-scope="scope">
-							<span>{{scope.row.goodNum}} 件</span>
+							<span>{{scope.row.goodNum}} {{scope.row.numUnit | sellNnit}}</span>
 				        </template>
 				    </el-table-column>
 				    <el-table-column
-				        prop="goodPrice"
 				        label="货品销售均价">
+
+                        <template slot-scope="scope">
+                            <span class="p-r-5" v-if="scope.row.goodPricePie !='0'">{{scope.row.goodPricePie | format}} 元/件</span>
+
+                            <span class="p-r-5" v-if="scope.row.goodPriceJin !='0'">{{scope.row.goodPriceJin | format}} 元/斤</span>
+
+                            <span v-if="scope.row.goodPriceKg !='0'">{{scope.row.goodPriceKg | format}} 元/公斤</span>
+                        </template>
+
 				    </el-table-column>
 				    <el-table-column
 				        prop="lossNum"
@@ -180,7 +188,7 @@
 				        label="提成">
 				    </el-table-column> -->
 				    <el-table-column
-				        label="售卖单位">
+				        label="默认售卖单位">
 				        <template slot-scope="scope">
 							{{scope.row.sellUnit | sellNnit }}
 				        </template>
@@ -190,12 +198,16 @@
 				        label="回扣">
 				    </el-table-column> -->
 				    <el-table-column
-				        label="操作">
+				        label="操作"
+				        v-if="dataList.logistics_info.settleStatus == 'status_not_selling'">
 				        <template slot-scope="scope">
 				        	<el-button type="primary" plain size="mini" @click='editGoodsInfo(scope.row.tid,scope.$index)'>编辑</el-button>
 	        			</template>
 				    </el-table-column>
 			    </el-table>	
+			    <div class="m-t-20 clearfix" v-if="dataList.logistics_info.settleStatus == 'status_not_selling'">
+					<el-button type="primary" plain class="floatRight" @click='addGood'>添加货品</el-button>
+				</div>
 			</el-card>
 			<!-- 入库结算 -->
 			<el-card class="box-card m-t-20">
@@ -248,12 +260,12 @@
 					<label>货款总金额：<span class='textRed'>{{dataList.goodCost | format}}</span></label>
 				</span>
 				<span class='m-r-30'>
-					<label>销售总金额：<span class='textRed'>{{dataList.sales_amount}}</span></label>
+					<label>销售总金额：<span class='textRed'>{{dataList.sales_amount | format}}</span></label>
 				</span>
 				<span class='m-r-30'>
 					<label>结算状态：<span class='textRed'>{{dataList.status}}</span></label>
 				</span>
-				<span class='m-r-30'>
+				<span class='m-r-30' v-show="dataList.status == '待汇款' || dataList.status == '已汇款'">
 					<label>代销费：<span class='textRed'>{{dataList.marketingCost | format}}</span></label>
 				</span>
 				<span class='m-r-30'>
@@ -270,55 +282,105 @@
 				<el-button type="success" class="floatRight settlement-btn">结算</el-button>
 				</router-link>
 			</div>
-			<div class="m-t-20 clearfix" v-show="dataList.status == '待汇款'">
+			<div class="m-t-20 clearfix" v-show="dataList.status == '待汇款' || dataList.status == '已完成'">
 				<router-link :to="{name:'train/statement',params: { tid: $route.params.tid }}">
 				<el-button type="success" class="floatRight settlement-btn">查看结算单</el-button>
 				</router-link>
+
+                <router-link :to="{name:'train/carPrint',params: { tid: $route.params.tid }}">
+                    <el-button type="success" class="floatRight settlement-btn" style="margin-right: 30px">查看车次结算明细</el-button>
+                </router-link>
+
 			</div>
 		</div>
 		<el-dialog title="编辑货品信息" :visible.sync="dialogGoodsFormVisible" width="800px">
 			<el-form :model='goodsForm' label-width="120px">
-				<el-form-item label="货品销售均价：" style="width:300px">
-					<el-input placeholder="输入货品数量" type='number' size='small' v-model="goodsForm.goodNum" >
-				    <template slot="append">件</template>
-					</el-input>
-				</el-form-item>  		
+				<el-row>
+				  	<el-col :span="12">
+				  		<div class="grid-content">
+							<el-form-item label="货品名称：" style="width:300px">
+								<el-input placeholder="输入货品名称" readonly size='small' v-model="goodsForm.goodName" @click.native="getGoodsList">
+								</el-input>
+							</el-form-item> 
+							<div class="goodListClass" v-show="showGoodList">
+								<p v-for="item in goodList.list" @click="selectGood(item)">{{item.goodName}}</p>
+								<el-pagination
+								    layout="prev, pager, next"
+								    :total="goodList.total"
+								    @current-change="currentChange">
+								</el-pagination>
+							</div>
+						</div>
+					</el-col>
+					<el-col :span="12">
+				  		<div class="grid-content">
+							<el-form-item label="入库量：" style="width:300px">
+								<el-input placeholder="输入货品数量" type='number' size='small' v-model="goodsForm.goodNum" >
+							    <!-- <template slot="append">{{goodsForm.unit | sellNnit}}</template> -->
+							    <el-select v-model="goodsForm.numUnit" size='small' slot="append" placeholder="请选择" style="width: 80px">
+	                                <el-option label="斤" value="unit_jin"></el-option>
+	                                <el-option label="公斤" value="unit_kg"></el-option>
+	                                <el-option label="件" value="unit_pie"></el-option>
+	                            </el-select>
+								</el-input>
+							</el-form-item>  
+						</div>
+					</el-col>
+					
+				</el-row>		
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 			    <el-button @click="dialogGoodsFormVisible = false" size='small'>取 消</el-button>
 			    <el-button type="primary" @click="sureGoodsInfo" size='small'>确 定</el-button>
 			</div>
 		</el-dialog>
-		<el-dialog title="修改物流信息" :visible.sync="dialogFormVisible" width="800px" :before-close="beforeClose">
-			<el-form :model="logisticsForm">
+		<el-dialog title="修改物流信息" :visible.sync="dialogFormVisible" width="800px">
+			<el-form :model="logisticsForm" ref="ruleForm" :rules="rules" label-width="100px">
 				<el-row>
 				  	<el-col :span="12">
 				  		<div class="grid-content">
-							<label for="">车次：</label>
-							<el-input v-model="logisticsForm.trainsNum" placeholder="请输入类型名称" style="width: 200px"></el-input>
+				  			<el-form-item label="车次：">
+							<el-input v-model="logisticsForm.trainsNum" placeholder="请输入车次" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="12">
 				  		<div class="grid-content">
-							<label for="">车牌号码：</label>
-							<el-input v-model="logisticsForm.plateNum" placeholder="请输入车牌号码" style="width: 200px"></el-input>
+				  			<el-form-item label="车牌号码：">
+							<el-input v-model="logisticsForm.plateNum" placeholder="请输入车牌号码" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="12">
 				  		<div class="grid-content">
-							<label for="">司机：</label>
-							<el-input v-model="logisticsForm.driverName" placeholder="请输入司机名称" style="width: 200px"></el-input>
+				  			<el-form-item label="司机：">
+							<el-input v-model="logisticsForm.driverName" placeholder="请输入司机名称" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
 				  		</div>
 				  	</el-col>
 				  	<el-col :span="12">
 				  		<div class="grid-content">
-							<label for="">司机电话：</label>
-							<el-input v-model="logisticsForm.driverPhone" type="number" placeholder="请输入司机名称" style="width: 200px"></el-input>
+				  			<el-form-item label="司机电话：" prop="driverPhone">
+							<el-input v-model="logisticsForm.driverPhone" placeholder="请输入司机电话" style="width: 200px"></el-input>
+							</el-form-item>
+				  		</div>
+				  	</el-col>
+				  	<el-col :span="12">
+				  		<div class="grid-content">
+				  			<el-form-item label="产地：">
+							<el-input v-model="logisticsForm.origin" placeholder="请输入产地" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
+				  		</div>
+				  	</el-col>
+				  	<el-col :span="12">
+				  		<div class="grid-content">
+				  			<el-form-item label="发货地点：">
+							<el-input v-model="logisticsForm.startAddress" placeholder="请输入发货地点" style="width: 200px" :maxlength="GLOBAL.maxlength"></el-input>
+							</el-form-item>
 				  		</div>
 				  	</el-col>
 				</el-row>
 			
-			  	
 				<div class="textCenter m-t-20">
 					
 					<el-upload
@@ -349,7 +411,7 @@
 					  </div>
 					  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
 					</el-upload>
-					<p>产品证明</p>
+					<p>产地证明</p>
 				</div>
 				<div class="textCenter m-t-20">
 					
@@ -371,14 +433,14 @@
 				  	<el-col :span="24">
 						<div class="grid-content clearfix">
 							<label for="" class="floatLeft">备注：</label>
-							<el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="dataList.logistics_info.remark"></el-input>
+							<el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="logisticsForm.remark" :maxlength="GLOBAL.maxTextare"></el-input>
 				  		</div>
 				  	</el-col>
 				</el-row>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 			    <el-button @click="dialogFormVisible = false" size='small'>取 消</el-button>
-			    <el-button type="primary" @click="editLogistics" size='small'>确 定</el-button>
+			    <el-button type="primary" @click="sureLogistics" size='small'>确 定</el-button>
 			</div>
 		</el-dialog>
 	</div>
@@ -388,9 +450,28 @@
 <script>
 	import '@/style/inventory/inventory.scss';
 	import { train } from '@/services/apis/train';
+	import { record } from '@/services/apis/system/record';
 	import { keyValue } from '@/services/apis/key-value';
+	import Cookies from 'js-cookie'
 	export default {
 		data() {
+			//手机校验
+			var checkTelephone = (rule, value, callback) => {
+                if (value != '') {
+                    var myreg = /^1[3|4|5|7|8][0-9]{9}$/;
+                    if (!myreg.test(value)) {
+                        callback(new Error(' 请输入有效的手机号码！'));
+                    } else {
+                        if (value.length != 11) {
+                            callback(new Error('请输入有效的手机号码！'));
+                        } else {
+                            callback();
+                        }
+                    }
+                } else {
+                    callback();
+                }
+            };
 			return {
 				loading: true,
 				dialogFormVisible:false,
@@ -401,26 +482,12 @@
 					goods_owner_info:{},
 					logistics_info:{},
 					goods_info:[],
-					storage:[{
-						payee_name:'王',
-						payee_phone:'13132123123',
-						ename:'运费',
-						amount:200,
-						tie_name:'李',
-						remark:'经营范围是指国家允许企业生产和经营的商品类别、品种及服务项目。',
-					},{
-						payee_name:'王',
-						payee_phone:'13132123123',
-						ename:'运费',
-						amount:200,
-						tie_name:'李',
-						remark:'hello',
-					}],
-					goods_amount:7200,
-					sales_amount:7200,
-					status:'待结算',
-					marketing_cost:1200,
-					commission:720,
+					storage:[],
+					goods_amount:'',
+					sales_amount:'',
+					status:'',
+					marketing_cost:'',
+					commission:'',
 					rebates:'',
 				},
 				logisticsForm:{
@@ -428,30 +495,42 @@
 					trainsNum: '',
 					plateNum:'',
 					driverName:'',
+					startAddress:'',
+					origin:'',
 					driverPhone:'',
 					checkProve:'',
 					originProve:'',
 					carrierContract:'',
 					remark:''
 				},
+				showGoodList:false,  //显示货品列表
 				goodsForm:{
-					goodNum:''
+					goodNum:'',
+					goodName:'',
+					numUnit:'unit_jin'
 				},
+				goodListParams:{
+					target_gid:JSON.parse(Cookies.get('gid')).gid,
+					page_size:10,
+					current_page:1
+				},//货品列表参数
+				goodList:'',  //货品列表
+				rules: {
+			        driverPhone: [
+			            { validator: checkTelephone, trigger: 'blur' }
+			        ],
+		        }
 			}
 		},
 		mounted() {
+			//从键值表获取车次状态，结算状态等信息
 			keyValue()
             .then(response => {
-                this.keyValueData = response.data.results
+                this.keyValueData = response.data.results;
+                this.getInfo();
             })
-            
-			this.getInfo();
-			
-			//this.goodsForm = 
-			//console.log(this.$route.params.tid)
 		},
 		updated(){
-
 			//结算状态转换
 			for (var i = 0; i < this.keyValueData.car_status.length; i++) {
 				if (this.dataList.status == this.keyValueData.car_status[i].key) {
@@ -463,49 +542,131 @@
 			imgUrl(url){
 				if (url.indexOf(process.env.BASE_PATH) == -1) return process.env.BASE_PATH + url
 			},
+			/**
+			 * 获取货品列表
+			 * @return {[type]} [description]
+			 */
+			getGoodsList(){
+				this.showGoodList = !this.showGoodList;
+                record.goodsList(this.goodListParams)
+                .then(response => {
+                	if (response.data.results) {
+                		this.goodList = response.data.results
+                	}
+                    
+                })
+			},
+			//选择货品
+			selectGood(data){
+				this.showGoodList = false;
+				this.goodsForm.goodName = data.goodName;
+				this.goodsForm.goodId = data.goodId;
+			},
+			//添加货品
+			addGood(){
+				this.dialogGoodsFormVisible = true;
+				this.goodsForm.goodNum = '';
+				this.goodsForm.goodName = '';
+				this.goodsForm.goodId = '';
+				this.goodsForm.id = '';
+				this.goodsForm.numUnit = 'unit_jin';
+			},
+			//货品列表分页
+			currentChange(value){
+				this.goodListParams.current_page = value;
+				this.getGoodsList();
+				this.showGoodList = true;
+			},
 			getInfo(){
-				var doMain = process.env.BASE_PATH;
-				var logistics = this.dataList.logistics_info;
-				var params = {
+				
+				let params = {
                     tid:this.$route.params.tid
                 }
 				train.info(params)
                 .then(response => {
                     this.dataList = response.data.results
-                    // this.imgUrl(this.dataList.logistics_info.checkProve);
-                    // this.imgUrl(this.dataList.logistics_info.originProve);
-                    // this.imgUrl(this.dataList.logistics_info.carrierContract);
+                    let doMain = process.env.BASE_PATH;
+					let defaultImg = require('../../assets/default/defautImg.png'),
+						checkProveImg = this.dataList.logistics_info.checkProve,
+						originProveImg = this.dataList.logistics_info.originProve,
+						carrierContractImg = this.dataList.logistics_info.carrierContract;
+	                // this.imgUrl(this.dataList.logistics_info.checkProve);
+	                // this.imgUrl(this.dataList.logistics_info.originProve);
+	                // this.imgUrl(this.dataList.logistics_info.carrierContract);
 
-                    if(this.dataList.logistics_info.checkProve.indexOf(doMain) == -1) this.dataList.logistics_info.checkProve = doMain + this.dataList.logistics_info.checkProve;
-                    if (this.dataList.logistics_info.originProve.indexOf(doMain) == -1) this.dataList.logistics_info.originProve = doMain + this.dataList.logistics_info.originProve;
-                    if (this.dataList.logistics_info.carrierContract.indexOf(doMain) == -1) this.dataList.logistics_info.carrierContract = doMain + this.dataList.logistics_info.carrierContract;
-                    for (var Key1 in this.logisticsForm){
-                		for (var Key2 in this.dataList.logistics_info){
-                			if (Key1 == Key2) this.logisticsForm[Key1] = this.dataList.logistics_info[Key2]
-                		}
+	                for (var Key1 in this.logisticsForm){
+	            		for (var Key2 in this.dataList.logistics_info){
+	            			if (Key1 == Key2) this.logisticsForm[Key1] = this.dataList.logistics_info[Key2]
+	            		}
 				     	
 				    }
+				    //分别判断三张图片是否为空
+				    if(checkProveImg ==''){
+				    	this.logisticsForm.checkProve = defaultImg;
+	                	this.dataList.logistics_info.checkProve = defaultImg;
+	                }else{
+	                	this.logisticsForm.checkProve = doMain + checkProveImg;
+	                	this.dataList.logistics_info.checkProve = doMain + checkProveImg;
+	                } 
+	                if(originProveImg ==''){
+	                	this.logisticsForm.originProve = defaultImg
+	                	this.dataList.logistics_info.originProve = defaultImg;
+	                }else{
+	                	this.logisticsForm.originProve = doMain + originProveImg;
+	                	this.dataList.logistics_info.originProve = doMain + originProveImg;
+	                } 
+	                if(carrierContractImg ==''){
+	                	this.logisticsForm.carrierContract = defaultImg;
+	                	this.dataList.logistics_info.carrierContract = defaultImg;
+	                }else{
+	                	this.logisticsForm.carrierContract = doMain + carrierContractImg;
+	                	this.dataList.logistics_info.carrierContract = doMain + carrierContractImg;
+	                }
                     this.loading = false
                 })
                 
 			},
+			/**
+			 * 编辑货品弹出框
+			 * @param  {[type]} id [货品id]
+			 * @param  {[type]} i  [货品索引]
+			 * @return {[type]}    [description]
+			 */
 			editGoodsInfo(id,i){
 				this.dialogGoodsFormVisible = true;
 				this.goodsForm.goodNum = this.dataList.goods_info[i].goodNum;
+				this.goodsForm.goodName = this.dataList.goods_info[i].goodName;
 				this.goodsForm.goodId = this.dataList.goods_info[i].goodId;
-				
+				this.goodsForm.id = this.dataList.goods_info[i].id;
+				this.goodsForm.numUnit = this.dataList.goods_info[i].numUnit;
 			},
+			/**
+			 * 确定修改货品
+			 * @return {[type]} [description]
+			 */
 			sureGoodsInfo(){
 				var params = {
                     tid:this.$route.params.tid,
+                    id:this.goodsForm.id,
+                    goodName:this.goodsForm.goodName,
                     goodNum:this.goodsForm.goodNum,
-                    goodId:this.goodsForm.goodId
+                    goodId:this.goodsForm.goodId,
+                    numUnit:this.goodsForm.numUnit,
+                    trainsNum: this.dataList.logistics_info.trainsNum
                 }
-                train.editGoodsInfo(params)
-                .then(response => {
-                    this.dialogGoodsFormVisible = false;
-                    this.getInfo();
-                })
+                if (this.goodsForm.goodId!='' && this.goodsForm.goodNum!='') {
+                	train.editGoodsInfo(params)
+	                .then(response => {
+	                    this.dialogGoodsFormVisible = false;
+	                    this.getInfo();
+	                })
+                }else{
+                	this.$message({
+						message: '请完善货品信息',
+						type: 'success'
+					});
+                }
+                
 			},
 			handleAvatarSuccess(res, file){
 				
@@ -516,8 +677,14 @@
 			beforeClose(done){
 
 			},
+			/**
+			 * 三张图片分别上传（待优化）
+			 * @param  {[type]} file [description]
+			 * @return {[type]}      [description]
+			 */
 			onChange1(file){
 				let _this = this;
+				console.log(file.url);
 				this.convertImgToBase64(file.url,function(base64Img){
 					_this.logisticsForm.checkProve = base64Img;
 				})
@@ -534,28 +701,68 @@
 					_this.logisticsForm.carrierContract = base64Img;
 				})
 			},
+			/**
+			 * 编辑车次信息弹出框
+			 * @return {[type]} [description]
+			 */
 			editLogistics(){
-				let _this = this.logisticsForm;
-				this.convertImgToBase64(_this.checkProve,function(base64Img){
-					_this.checkProve = base64Img;
-				})
-				this.convertImgToBase64(_this.originProve,function(base64Img){
-					_this.originProve = base64Img;
-				})
-				this.convertImgToBase64(_this.carrierContract,function(base64Img){
-					_this.carrierContract = base64Img;
-				})
-				train.editLogistics(_this)
-                .then(response => {
-                	this.$message({
-						message: '修改成功',
-						type: 'success'
-					});
-					this.getInfo();
-                    this.dialogFormVisible = false;
-                })
+				this.dialogFormVisible = true;
 			},
-			// 图片转base64
+			/**
+			 * 确定修改物流信息
+			 * @return {[type]} [description]
+			 */
+			sureLogistics(){
+				let _this = this.logisticsForm;
+				
+				if (_this.checkProve == this.dataList.logistics_info.checkProve) {
+					_this.checkProve = '';
+				}else{
+					this.convertImgToBase64(_this.checkProve,function(base64Img){
+						_this.checkProve = base64Img;
+					})
+				}
+				
+				if (_this.originProve == this.dataList.logistics_info.originProve) {
+					_this.originProve = '';
+				}else{
+					this.convertImgToBase64(_this.originProve,function(base64Img){
+						_this.originProve = base64Img;
+					})
+				}
+				
+				if (_this.carrierContract == this.dataList.logistics_info.carrierContract) {
+					_this.carrierContract = '';
+				}else{
+					this.convertImgToBase64(_this.carrierContract,function(base64Img){
+						_this.carrierContract = base64Img;
+					})
+				}
+				
+				this.$refs.ruleForm.validate((valid) => {
+
+					if (valid) {
+
+						train.editLogistics(_this)
+		                .then(response => {
+		                	this.$message({
+								message: '修改成功',
+								type: 'success'
+							});
+							this.getInfo();
+		                    this.dialogFormVisible = false;
+		                })
+					}
+				})
+				
+			},
+			/**
+			 * 图片转base64的方法
+			 * @param  {[type]}   url          [图片地址]
+			 * @param  {Function} callback     [转换成功之后的回调]
+			 * @param  {[type]}   outputFormat [description]
+			 * @return {[type]}                [description]
+			 */
 			convertImgToBase64(url, callback, outputFormat){
 				var canvas = document.createElement('CANVAS'); 
 				var ctx = canvas.getContext('2d'); 

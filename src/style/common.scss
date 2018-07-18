@@ -93,6 +93,9 @@
 .p-t-20 {
     padding-top: 20px;
 }
+.p-b-10 {
+    padding-bottom: 10px;
+}
 .p-b-20 {
     padding-bottom: 20px;
 }
@@ -105,15 +108,16 @@
 .p-r-20{
     padding-right: 20px;
 }
+.p-r-5{
+    padding-right: 10px;
+}
 
 
 /*兼容IE*/
-.commonstyle{
-    min-width: 1200px;
-    position: relative;
-    left: 15px;
-}
 
+.el-main{
+    display: inline-block;
+}
 /*可点击样式*/
 .click {
     cursor: pointer;
@@ -129,6 +133,9 @@
 }
 .textRight {
     text-align: right;
+}
+.textLeft{
+    text-align: left;
 }
 .floatLeft {
     float: left;
@@ -177,3 +184,5 @@ table.table-print {
 textarea{
     resize: none !important;
 }
+
+input::-ms-clear{display:none;}

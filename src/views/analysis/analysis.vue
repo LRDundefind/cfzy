@@ -11,7 +11,7 @@
                     :clearable="clearable"
                     placeholder="选择日期"
                  
-                    @change="getNewListS();getNewListZ()"
+                    @change="getNewListS();getNewListZ();getNewListW()"
                     value-format="yyyy-MM-dd">
                     </el-date-picker>
                         <!-- <el-date-picker
@@ -24,12 +24,55 @@
                 </div>
             </div>
         <div class="analysisCont">
+            <!--逐日对账-->
 
-           
+            <div class="analysisAdd" style="margin-bottom: 40px">
+                <div class="analysisAdd_Head">
+                    <h3>逐日对账</h3>
+
+                </div>
+                <div class="line"></div>
+                <div style="width:92%;margin:0 auto;display:table;padding:20px 0 0;">
+                    <el-table
+                            :data="tableData"
+                            height="240"
+                            style="width: 100%">
+                        <el-table-column
+                                prop="way"
+                                label=""
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="cash"
+                                label="现金"
+                        >
+                        </el-table-column>
+                        <el-table-column
+                                prop="wechat"
+                                label="微信">
+                        </el-table-column>
+                        <el-table-column
+                                prop="alipay"
+                                label="支付宝">
+                        </el-table-column>
+                        <el-table-column
+                                prop="bank"
+                                label="银行卡">
+                        </el-table-column>
+                        <el-table-column
+                                prop="total"
+                                label="合计">
+                        </el-table-column>
+                    </el-table>
+                    <!--<span style="float:right;padding:20px 0;">总计：{{tableData3.total}}</span>-->
+                </div>
+            </div>
+
+
             <!-- 日收入展示 -->
             <div class="analysisAdd">
                 <div class="analysisAdd_Head">
-                    <h3>日收入</h3>
+                    <h3>日销售统计</h3>
                    
                 </div>
                 <div class="line"></div>
@@ -157,8 +200,7 @@
                 daytimeOut:'',
 				tableData3: [],
                 tableData4: [],
-                
-                
+                tableData: []
 			}
 		},
 		mounted() {
@@ -168,7 +210,8 @@
             this.asd();
             this.getNewListS();
             this.getNewListZ();
-            
+            this.getNewListW();
+
         },
         methods:{
             asd(){
@@ -201,7 +244,6 @@
                 let params={
                     date:this.daytime
                 }
-                console.log(this.daytime)
                 analysis.listS(params).then(response=>{
                     this.tableData3=response.data.results;
                    
@@ -211,15 +253,12 @@
                 let params={
                     date:this.daytime
                 }
-                 console.log(this.daytime)
                 analysis.listZ(params).then(response=>{
-                    
                     if(response.data.results!=''){
                         for(var i=0;i<response.data.results.list.length;i++){
                         
                         if(response.data.results.list[i].trainsNum==''){
                             // 没有车次的数据
-                           
                             response.data.results.list[i].spendParty='普通支出'
                             // 费用类型全部为普通支出，根据接口传递分flag进行区分
                         }
@@ -236,8 +275,41 @@
                         this.tableData4=response.data.results;
                         }
                     else{
-                        this.tableData4.list=[]
+                        this.tableData4=[]
                     }
+                })
+            },
+
+            getNewListW(){
+                let params={
+                    date:this.daytime
+                };
+                analysis.listW(params).then(response=>{
+                    var income_check = response.data.results.income_check;
+                    var expend_check = response.data.results.expend_check;
+                    var check = response.data.results.check;
+                    var q = [{
+                        name:'收款',
+                    },{
+                        name:'支出',
+                    },{
+                        name:'结余',
+                    }];
+
+                    q.forEach(function (value) {
+                        if(value.name == '收款'){
+                            q.push(income_check);
+                        }else if(value.name == '支出'){
+                            q.push(expend_check);
+                        }else if(value.name == '结余'){
+                            q.push(check);
+                        }
+                    });
+                    q = q.splice(3,5);
+                    q[0].way = '收款';
+                    q[1].way = '支出';
+                    q[2].way = '结余';
+                    this.tableData = q;
                 })
             },
         }

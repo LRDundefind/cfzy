@@ -1,5 +1,5 @@
 <template>
-	<div class="enterpriseMessage">
+    <div class="enterpriseMessage">
         <div class="title clearfix m-t-10">
             <!-- <label>企业信息</label> -->
             <el-button class="floatRight" type="primary" size="small" @click="dialogFormVisible = true">编辑</el-button>
@@ -44,20 +44,21 @@
         <el-dialog title="编辑企业" :visible.sync="dialogFormVisible" width="800px">
             <el-form ref="editEnterprise" :model="editEnterprise" label-width="100px">
                 <el-form-item label="企业名称：">
-                    <el-input v-model="editEnterprise.name" size="small" placeholder="请输入企业名称"></el-input>
+                    <el-input v-model="editEnterprise.name" size="small" placeholder="请输入企业名称" :maxlength = '50'></el-input>
                 </el-form-item>
                 <div class="ub">
                     <div class="ub-f1">
                         <el-form-item label="公司宣传照：">
                             <el-upload
                                     class="avatar-uploader"
-                                    action="http://192.168.1.138/uploadBase64"
+                                    action="https://jsonplaceholder.typicode.com/posts/"
                                     :show-file-list="false"
                                     :on-success="handleAvatarSuccess"
-                                    :on-change="onChange"
+                                    :on-change="onChange1"
                                     :before-upload="beforeAvatarUpload"
                                     :auto-upload="false">
-                                <img v-if="editEnterprise.publicityUrl" :src="editEnterprise.publicityUrl" class="avatar">
+                                <img v-if="editEnterprise.proImg" :src="editEnterprise.proImg"
+                                     class="avatar">
                                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                             </el-upload>
                         </el-form-item>
@@ -68,9 +69,11 @@
                                     class="avatar-uploader"
                                     action="https://jsonplaceholder.typicode.com/posts/"
                                     :show-file-list="false"
-                                    :on-success="handleAvatarSuccess1"
-                                    :before-upload="beforeAvatarUpload">
-                                <img v-if="editEnterprise.businessUrl" :src="editEnterprise.businessUrl" class="avatar">
+                                    :on-success="handleAvatarSuccess"
+                                    :on-change="onChange2"
+                                    :before-upload="beforeAvatarUpload"
+                                    :auto-upload="false">
+                                <img v-if="editEnterprise.licenseImg" :src="editEnterprise.licenseImg" class="avatar">
                                 <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                             </el-upload>
                         </el-form-item>
@@ -78,25 +81,21 @@
                 </div>
 
                 <el-form-item label="公司简介：">
-                    <el-input type="textarea" v-model="editEnterprise.descript" placeholder="请输入公司简介"></el-input>
+                    <el-input type="textarea" v-model="editEnterprise.descript" placeholder="请输入公司简介" :maxlength = '420' ></el-input>
                 </el-form-item>
 
                 <el-form-item label="税号：">
-                    <el-input v-model="editEnterprise.taxNo" size="small" placeholder="请输入税号"></el-input>
+                    <el-input v-model="editEnterprise.taxNo" size="small" placeholder="请输入税号" :maxlength = '50'></el-input>
                 </el-form-item>
 
                 <el-form-item label="经营范围：">
-                    <el-input type="textarea" v-model="editEnterprise.businessScope " placeholder="请输入经营范围"></el-input>
+                    <el-input type="textarea" v-model="editEnterprise.businessScope " placeholder="请输入经营范围" :maxlength = '420'></el-input>
                 </el-form-item>
-                <!-- <el-form-item>
-                    <el-button type="primary" @click="onSubmit">立即创建</el-button>
-                    <el-button>取消</el-button>
-                </el-form-item>-->
 
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogFormVisible = false" size='small'>取 消</el-button>
-                <el-button type="primary" @click="alterInfo" size='small'>确 定</el-button>
+                <el-button type="primary" @click="alterInfo" size='small' :loading="editLoading">确 定</el-button>
             </div>
         </el-dialog>
     </div>
@@ -104,59 +103,84 @@
 
 <script>
 
-	import '@/style/system/enterpriseMessage.scss';
-    import { enterprise } from '@/services/apis/system/enterprise';
+    import '@/style/system/enterpriseMessage.scss';
+    import {enterprise} from '@/services/apis/system/enterprise';
+    import Cookies from 'js-cookie'
 
-	export default {
-		name: 'enterpriseMessage',
-		data() {
-			return {
-                enterpriseForm:{
-                    compayName:'',
-                    proImg:'',
-                    licenseImg:'',
+    export default {
+        name: 'enterpriseMessage',
+        data() {
+            return {
+                editLoading:false,//编辑loading
+                enterpriseForm: {
+                    compayName: '',
+                    proImg: '',
+                    licenseImg: '',
                     imageUrl: '',
-                    descript:'',
-                    taxNo:'',
-                    businessScope:'',
+                    descript: '',
+                    taxNo: '',
+                    businessScope: '',
                 },//企业信息
 
                 editEnterprise: {
-                    name:'',
-                    businessUrl:'',
-                    publicityUrl: '',
-                    descript:'',
-                    taxNo:'',
-                    businessScope:'',
+                    name: '',
+                    proImg: '',//公司宣传照
+                    licenseImg: '',//营业执照文件
+                    descript: '',//公司简介
+                    taxNo: '',//税号
+                    businessScope: '',//经营范围
                 },//编辑企业信息
                 dialogFormVisible: false,//编辑企业模态框
                 currentPage4: 4,//当前页
-			}
-		},
+                doMain:process.env.BASE_PATH
+            }
+        },
         mounted() {
             //初始化数据--企业信息
             this.getInfo();
         },
-		methods: {
+        methods: {
+            //获取企业信息
             getInfo(){
                 enterprise.getInfo()
                     .then(response => {
-                        this.enterpriseForm = response.data.results;
-                        window.localStorage.setItem('compayName', this.enterpriseForm.compayName);     //姓名
-                        //编辑企业
-                        this.enterpriseForm.compayName =response.data.results.compayName;
-                        this.enterpriseForm.proImg =response.data.results.proImg;
-                        this.enterpriseForm.licenseImg =response.data.results.licenseImg;
-                        this.enterpriseForm.descript =response.data.results.descript;
-                        this.enterpriseForm.taxNo =response.data.results.taxNo;
-                        this.enterpriseForm.businessScope =response.data.results.businessScope;
-                        //营业执照
-                        this.editEnterprise = response.data.results;
-                        this.editEnterprise.name = response.data.results.compayName;
+                        if(response.data.results !=''){
+                            this.enterpriseForm = response.data.results;
+                            //存储公司名字
+                            Cookies.set('compayName', this.enterpriseForm.compayName);
+                            window.localStorage.setItem('compayName', this.enterpriseForm.compayName);
+                            let defaultImg = require('../../assets/default/defautImg.png');
+                            let picture1 = this.enterpriseForm.proImg;
+                            let picture2 = this.enterpriseForm.licenseImg;
+                            //图片的处理
+                            if(picture1 ==''){
+                                this.enterpriseForm.proImg = defaultImg;
+                                this.editEnterprise.proImg = defaultImg;
+                            }else{
+                                this.enterpriseForm.proImg = this.doMain + picture1;
+                                this.editEnterprise.proImg = this.doMain + picture1;
+                            }
+                            //编辑企业赋值
+                            this.editEnterprise.cid = response.data.results.cid;
+                            this.editEnterprise.name = response.data.results.compayName;
+                            this.editEnterprise.descript = response.data.results.descript;
+                            this.editEnterprise.taxNo = response.data.results.taxNo;
+                            this.editEnterprise.businessScope = response.data.results.businessScope;
 
-                        this.enterpriseForm.licenseImg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1521890123693&di=7dbd80fbec58d331ae9c48af920b67e0&imgtype=0&src=http%3A%2F%2Fdocs.ebdoor.com%2FImage%2FCompanyCertificate%2F20%2F205903.jpg';
-                        //公司宣传照访问链接
-                        this.enterpriseForm.proImg = 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1521889995801&di=5d200fceb2699a182cb126140d9f9310&imgtype=0&src=http%3A%2F%2Fpic34.nipic.com%2F20131014%2F4863396_154539029325_2.jpg';
+                            if(picture2 ==''){
+                                this.enterpriseForm.licenseImg = defaultImg;
+                                this.editEnterprise.licenseImg = defaultImg;
+                            }else{
+                                this.enterpriseForm.licenseImg = this.doMain + picture2;
+                                this.editEnterprise.licenseImg = this.doMain + picture2;
+                            }
+                        }else {
+                            let defaultImg = require('../../assets/default/defautImg.png');
+                            this.enterpriseForm.proImg = defaultImg;
+                            this.editEnterprise.proImg = defaultImg;
+                            this.enterpriseForm.licenseImg = defaultImg;
+                            this.editEnterprise.licenseImg = defaultImg;
+                        }
                     })
                     .catch(function (response) {
                         console.log(response);
@@ -166,16 +190,34 @@
             //编辑企业信息
             alterInfo(){
                 const data = this.editEnterprise;
-                delete data.licenseImg;
-                delete data.uid;
-                delete data.proImg;
-                delete data.compayName;
+                if (data.licenseImg == this.enterpriseForm.licenseImg && this.enterpriseForm.licenseImg != '') {
+                    data.licenseImg = '';
+                } else {
+                    this.convertImgToBase64(data.licenseImg, function (base64Img) {
+                        data.licenseImg = base64Img;
+                    })
+                }
 
+                if (data.proImg == this.enterpriseForm.proImg && this.enterpriseForm.proImg != '') {
+                    data.proImg = '';
+                } else {
+                    this.convertImgToBase64(data.proImg, function (base64Img) {
+                        data.proImg = base64Img;
+                    })
+                }
+
+                delete data.uid;
+                this.editLoading = true;
                 enterprise.editInfo(data)
                     .then(response => {
-//                        console.log(response);
-                        this.getInfo();
-                        this.dialogFormVisible = false;
+                        if (response.data.status == 'Y') {
+                            this.getInfo();
+                            this.dialogFormVisible = false;
+                            this.editLoading = false;
+                        }else {
+                            this.$message.error(response.data.error_msg);
+                            this.editLoading = false;
+                        }
                     })
                     .catch(function (response) {
                         console.log(response);
@@ -183,49 +225,52 @@
 
             },
 
-
-            handleSizeChange(val) {
-                console.log(`每页 ${val} 条`);
-            },
-            handleCurrentChange(val) {
-                console.log(`当前页: ${val}`);
-            },
             edit(){
 
             },
-            //处理图片
             handleAvatarSuccess(res, file) {
-                this.form.publicityUrl = URL.createObjectURL(file.raw);
-                console.log(this.form.publicityUrl)
             },
-            //处理图片2
-            handleAvatarSuccess1(res, file) {
-                this.form.businessUrl = URL.createObjectURL(file.raw);
-                console.log(this.form.businessUrl)
+            //处理图片base64
+            onChange1(file){
+                let _this = this;
+                this.convertImgToBase64(file.url, function (base64Img) {
+                    _this.editEnterprise.proImg = base64Img;
+                })
             },
-            //图片上传之前的处理
-            beforeAvatarUpload(file) {
-                console.log(file)
-                const isJPG = file.type === 'image/jpeg';
-                const isLt2M = file.size / 1024 / 1024 < 2;
+            //处理图片base64
+            onChange2(file){
+                let _this = this;
+                this.convertImgToBase64(file.url, function (base64Img) {
+                    _this.editEnterprise.licenseImg = base64Img;
+                })
+            },
 
-                if (!isJPG) {
-                    this.$message.error('上传头像图片只能是 JPG 格式!');
-                }
-                if (!isLt2M) {
-                    this.$message.error('上传头像图片大小不能超过 2MB!');
-                }
-                return isJPG && isLt2M;
-            },
-            onChange(file) {
-                console.log(file.url);
-            },
-            onSubmit() {
-                this.dialogFormVisible = false;
-                this.form.publicityUrl = this.form.url;
-                //console.log(this.form);
-            },
+            //图片上传之前的处理
+             beforeAvatarUpload(file) {
+
+             },
+
+            // 图片转base64
+            convertImgToBase64(url, callback, outputFormat){
+                var canvas = document.createElement('CANVAS');
+                var ctx = canvas.getContext('2d');
+                var img = new Image;
+                img.src = url;
+                img.crossOrigin = 'Anonymous';
+                img.onload = function () {
+                    var width = img.width;
+                    var height = img.height;
+                    // 按比例压缩2倍
+                    var rate = (width < height ? width / height : height / width) / 2;
+                    canvas.width = width * rate;
+                    canvas.height = height * rate;
+                    ctx.drawImage(img, 0, 0, width, height, 0, 0, width * rate, height * rate);
+                    var dataURL = canvas.toDataURL(outputFormat || 'image/png');
+                    callback.call(this, dataURL);
+                    canvas = null;
+                };
+            }
 
         }
-	}
+    }
 </script>

@@ -14,15 +14,20 @@
 					  	<el-col :span="12">
 					  		<div class="grid-content">
 								<label for="">姓名：</label>
-								<span v-show='!isEdit || types != 0'>{{names}}</span>
-								<el-input size='mini' v-show='isEdit && types == 0' v-model="form.name" placeholder="请输入姓名" style="width: 200px"></el-input>
+								<span>{{names}}</span>
+								
 					  		</div>
 					  	</el-col>
 					  	<el-col :span="12">
 					  		<div class="grid-content">
 								<label for="">角色：</label>
 								<span v-if="this.types ==0">财务</span>
-								<span v-else>卖手</span>						
+								<span v-show='!isEdit'>{{the_roleId | role}}</span>
+								<el-select size='mini' v-show='isEdit' v-model="the_roleId" placeholder="请选择角色">
+									<el-option label="财务" value="role_finance"></el-option>
+								    <el-option label="卖手" value="role_sel"></el-option>
+			                        <el-option label="财务兼卖手" value="role_finance_sell"></el-option>
+								</el-select>						
 					  		</div>
 					  	</el-col>
 					</el-row>
@@ -39,19 +44,13 @@
 					  	<el-col :span="12">
 					  		<div class="grid-content">
 								<label for="">手机号：</label>
-								<span v-show='!isEdit || types != 0'>{{phones}}</span>
-								<el-input size='mini' v-show='isEdit && types == 0' v-model="form.phone" placeholder="请输入手机号" style="width: 200px"></el-input>
+								<span>{{phones}}</span>
+								
 					  		</div>
 					  	</el-col>
 					</el-row>
 					<el-row>
-					  	<el-col :span="12" v-if="types == 0">
-					  		<div class="grid-content">
-								<label for="">登录密码：</label>
-								<span v-show='!isEdit || types != 0'>******</span>		
-								<el-input size='mini' v-show='isEdit && types == 0' v-model="form.pass" placeholder="请输入登录密码" style="width: 200px"></el-input>					
-					  		</div>
-					  	</el-col>
+					  	
 					  	<el-col :span="12">
 					  		<div class="grid-content">
 								<label for="">状态：</label>
@@ -90,6 +89,7 @@
 
 <script>
 	import '@/style/system/system.scss';
+	import { record } from '@/services/apis/system/record';
 	import {MessageBox} from 'element-ui';
 	import { staff } from '@/services/apis/system/staff';
 	export default {
@@ -97,6 +97,7 @@
 			return {
 				types: this.$route.params.types, //type 0 财务 type为1 说明是卖手 ，卖手 姓名、手机号、登录密码 不可编辑 
 				names:this.$route.params.names,
+				the_roleId:this.$route.params.roleId,  //角色ID
 				ids:this.$route.params.ids,
 				phones:this.$route.params.phones,
 				createTimes:this.$route.params.createTimes,
@@ -131,25 +132,45 @@
 			},
 			// 获取档位下拉信息
 			getdangweilist(){
-				this.dangweilist = JSON.parse(window.localStorage.getItem('gid'));
+				record.list()
+				.then(response => {
+					this.dangweilist = response.data.results.list;
+				})
 			},
 			edit(){
 				
 				this.isEdit = true;
 				this.form.dangwei=this.gearNames;
 				this.form.desc=this.remark;
+				this.form.name=this.names;
+				this.form.phone=this.phones;
 			},
 			save(){
 				this.isEdit = false;
 				if(this.dangweiId==null){
 					this.dangweiId=this.dangweilist[0].gid
 				}
-				if(this.types==0){
-					this.editorMoney();
+				let params = {
+					remark:this.form.desc,		//备注
+					the_roleId:this.the_roleId, //角色ID
+					empId:this.ids,			//员工ID
+					the_gid:this.dangweiId
 				}
-				else{
-					this.editorPay();
-				}
+	
+				staff.EditStaff(params).then(response =>{
+					if(response.data.status=='Y'){
+						 MessageBox({
+							message: '恭喜你，修改成功',
+							type: 'success'
+						});
+						this.$router.push({ name: 'staff'})
+					}else{
+						MessageBox({
+							message: response.data.results,
+							type: 'error'
+						});
+					}
+				})
 			},
 			// 编辑财务
 			editorMoney(){

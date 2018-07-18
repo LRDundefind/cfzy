@@ -1,4 +1,9 @@
 .repayment {
+    .width-220{
+        width: -moz-calc(100% - 220px);
+        width: -webkit-calc(100% - 220px);
+        width: calc(100% - 220px);
+    }
     .infoLayout {
         //卖手信息
         padding: 0 10px;
@@ -8,7 +13,6 @@
             border-radius: 50%;
             background-repeat: no-repeat;
             background-size: cover;
-            background-color: red;
         }
         .info {
             height: auto;

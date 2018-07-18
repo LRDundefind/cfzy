@@ -1,6 +1,85 @@
 <template>
 	<div class="home f-s-14 commonstyle">
-		<!--当日统计-->
+        <!--档位结余-->
+        <div class="balance ub">
+            <div class="ub-f5 textCenter">
+                <div class="ub">
+                    <div class="ub-f5">
+                        <div class="stall line-ellipsis-1" :title="dataResults.balanceStall | format">{{dataResults.balanceStall |format}}
+                        </div>
+                        <div class="stall_word">档口结余</div>
+                    </div>
+                    <div class="ub ub-pc ub-f1">
+                        <div class="equal  " >=</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ub-f3 textCenter">
+                <div class="ub ">
+                    <div class="ub-f5">
+                        <div class="digital line-ellipsis-1" :title="dataResults.yBalanceStall | format">{{dataResults.yBalanceStall |format}}
+                        </div>
+                        <div class="digital_word">昨日结余</div>
+                    </div>
+                    <div class="ub-f1 ub ub-pc">
+                        <div class="plus">+</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ub-f3 textCenter">
+                <div class="ub ">
+                    <div class="ub-f5">
+                        <div class="digital" :title="dataResults.balanceCash | format">{{dataResults.balanceCash |format}}
+                        </div>
+                        <div class="digital_word line-ellipsis-1">当日现金结余</div>
+                    </div>
+                    <div class="ub-f1 ub ub-pc">
+                        <div class="plus">+</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ub-f3 textCenter">
+                <div class="ub ">
+                    <div class="ub-f5">
+                        <div class="digital" :title="dataResults.balanceWeChat | format">{{dataResults.balanceWeChat | format}}
+                        </div>
+                        <div class="digital_word line-ellipsis-1">当日微信结余</div>
+                    </div>
+                    <div class="ub-f1 ub ub-pc">
+                        <div class="plus">+</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ub-f3 textCenter">
+                <div class="ub ">
+                    <div class="ub-f5">
+                        <div class="digital" :title="dataResults.balanceAlipay | format">{{dataResults.balanceAlipay | format}}
+                        </div>
+                        <div class="digital_word line-ellipsis-1">当日支付宝结余</div>
+                    </div>
+                    <div class="ub-f1 ub ub-pc">
+                        <div class="plus">+</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ub-f2 textCenter">
+                <div>
+                    <div class="digital" :title="dataResults.balanceCard | format">{{dataResults.balanceCard | format}}</div>
+                    <div class="digital_word line-ellipsis-1">当日银行卡结余</div>
+                </div>
+            </div>
+        </div>
+        <!--档位结余end-->
+
+
+        <!--当日统计-->
 		<div class="todayStatistics ub c-f" >
 			<div class="ub-f1">
 				<div :title="dataResults.day_income" class="money line-ellipsis-1">{{dataResults.day_income | format}}</div>
@@ -47,7 +126,7 @@
 		<div class="b-c-f monthStatistics ub c-6 f-s-14">
 			<div class="ub-f1">
 				<div class="explain">订单量</div>
-				<div :title="dataResults.month_orders" class="statistics line-ellipsis-1">{{dataResults.month_orders | format}}</div>
+				<div :title="dataResults.month_orders" class="statistics line-ellipsis-1">{{dataResults.month_orders}}</div>
 			</div>
 			<div class="ub-f1">
 				<div class="explain">当月收入</div>
@@ -63,7 +142,7 @@
 			</div>
 			<div class="ub-f1">
 				<div class="explain">入库车次量（车）</div>
-				<div :title="dataResults.month_vehicle" class="statistics line-ellipsis-1">{{dataResults.month_vehicle | format}}</div>
+				<div :title="dataResults.month_vehicle" class="statistics line-ellipsis-1">{{dataResults.month_vehicle}}</div>
 			</div>
 		</div>
 		<div @click="onClickBlacklist()" v-bind:style="blacklistStyle" class="m-t-30 b-c-f blacklist click"></div>
@@ -76,13 +155,13 @@
 		<div class="companyInformation textCenter f-s-12 c-6 m-t-30">
 			<div>公司简介</div>
 			<div class="m-t-10">
-				<span>合作洽谈：010-56896</span>
-				<span class="m-l-20">销售热线：010-56896</span>
-				<span class="m-l-20">咨询QQ：1158863538</span>
-				<span class="m-l-20">邮箱：1158863538@qq.com</span>
+				<span>合作洽谈：4009008038</span>
+				<span class="m-l-20">销售热线：4009008038</span>
+				<!-- <span class="m-l-20">咨询QQ：1158863538</span> -->
+				<!-- <span class="m-l-20">邮箱：1158863538@qq.com</span> -->
 				<span @click="onClickFeedback()" class="m-l-20 click">意见反馈</span>
 			</div>
-			<div class="m-t-10">2009-2017 Chinamobo Inc.All Rights Restqweqweqwe</div>
+			<div class="m-t-10">2018 程丰智运 All Rights Reserved</div>
 		</div>
 		</div>
 
@@ -98,6 +177,15 @@
 		name: 'home',
 		data() {
 			return {
+			    data:{
+                    balanceStall:"9999999.99",//档口结余
+                    yBalanceStall:"9999999.99",//昨日结余
+                    balanceCash:"9999999.99",//今日现金结余
+                    balanceWeChat:"9999999.99",//今日微信结余
+                    balanceAlipay:"9999999.99",//今日支付宝结余
+                    balanceCard:"9999999.99",//今日银行卡结余
+                },
+
 				//黑名单图片高度
 				blacklistStyle: {
 					height: 0
@@ -128,7 +216,7 @@
 			    // BaseTransferEntity.sign   = md5.hex(BaseTransferEntity.object + 'yi21fl');
 
 			},
-			//设置柱状图
+			//赊账最长周期排名Top7图
 			setChartsTime: function(myCharts, title) {
 				var xAxisData = [],
 					seriesData = [];
@@ -179,6 +267,7 @@
 				};
 				myCharts.setOption(option);
 			},
+			//赊账金额最大排名Top7图
 			setChartsMoney: function(myCharts, title) {
 				var xAxisData = [],
 					seriesData = [];

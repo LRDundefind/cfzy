@@ -1,6 +1,6 @@
 <template>
 	<div class="orderList">
-		<el-button class="goback-btn" icon="el-icon-arrow-left" @click="$router.go(-1)">返回</el-button> <label>车次管理/车次结算单打印预览</label>
+		<el-button class="goback-btn" icon="el-icon-arrow-left" @click="goBack()">返回</el-button> <label>车次管理/车次结算单打印预览</label>
 		<!-- 内容 -->
 		<div class="content"  style="width: 1200px;margin:0 auto">
 			<!--startprint-->
@@ -42,15 +42,15 @@
 					<td>销售日期</td>
 					<td>货品类别</td>
 					<td>销售数量</td>
-					<td>单价</td>
+					<td>售卖件数</td>
 					<td>小计金额</td>
 				</tr>
 				<tr v-for='item in dataList.day_sellinfo' :key="item.id">
 					<td>{{item.sel_time}}</td>
 					<td>{{item.goodName}}</td>
-					<td>{{item.sel_quantity}}</td>
-					<td>{{item.good_price}}</td>
-					<td>{{item.com_amount}}</td>
+					<td>{{item.sel_quantity |format}}</td>
+					<td>{{item.sel_pie |format}}</td>
+					<td>{{item.com_amount | format}}</td>
 				</tr>
 			</table>
 			<table class='table-print' cellspacing="0" cellpadding="0">
@@ -83,7 +83,7 @@
 				</tr>
 				<tr>
 					<td>应付金额</td>
-					<td colspan="3">{{dataList.pay_amount}}</td>
+					<td colspan="3">{{dataList.payAmount}}</td>
 				</tr>
 			</table>
 			</div>
@@ -94,6 +94,26 @@
 		</div>
 	</div>
 </template>
+<style scoped rel="stylesheet/scss" lang="scss">
+@page 
+    {
+        size:  auto;   /* auto is the initial value */
+        margin: 5mm;  /* this affects the margin in the printer settings */
+    }
+
+    html
+    {
+        background-color: #FFFFFF; 
+        margin: 10pxpx;  /* this affects the margin on the html before sending to printer */
+    }
+
+    body
+    {
+    
+        margin: 10mm 15mm 10mm 15mm; /* margin you want for the content */
+    }
+</style>
+
 <script>
 	import '@/style/inventory/inventory.scss';
 	import { train } from '@/services/apis/train';
@@ -138,10 +158,32 @@
  
 		        var prnhtml = document.getElementById('print').innerHTML; 
 		        window.document.body.innerHTML = prnhtml;  
-		        window.print();  
+				window.print();  
+				// if (!!window.ActiveXObject || "ActiveXObject" in window) { //是否ie
+				// this.remove_ie_header_and_footer();
+				// }
+				// else{
+				// 	window.print();
+				// }
+				
 		        window.document.body.innerHTML = bdhtml;
 		        window.location.reload();
 		        //this.$router.go(0)
+			},
+             remove_ie_header_and_footer() {
+                var hkey_path;
+                hkey_path = "HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\PageSetup\\";
+                try {
+                var RegWsh = new ActiveXObject("WScript.Shell");
+                    RegWsh.RegWrite(hkey_path + "header", "");
+                    RegWsh.RegWrite(hkey_path + "footer", "");
+                 } 
+                    catch (e) {
+                    }
+                },
+			//返回
+			goBack() {
+				this.$router.push({name:'train'});
 			}
 		},
 		computed: {

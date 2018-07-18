@@ -1,8 +1,8 @@
-<template>
+ <template>
 	<div class="spendingType">
 		<!-- <label>支出类型</label> -->
 		<div class="clearfix m-t-10">
-		<el-button type="primary" class="floatRight" size="small" @click="dialogFormVisible = true">添加支出类型</el-button>
+		<el-button type="primary" class="floatRight" size="small" @click="resetForm('dynamicValidateForm')">添加支出类型</el-button>
 		</div>
 		<!-- 内容 -->
 		<div class="content">
@@ -41,9 +41,9 @@
 			</el-pagination>-->
 		</div>
 		<el-dialog title="添加支出类型" :visible.sync="dialogFormVisible" width="800px">
-			<el-form ref="dynamicValidateForm" :model="newData" :rules="rules">
-				<el-form-item label="类型名称：" prop="name">
-					<el-input size='mini' v-model="newData.name" placeholder="请输入类型名称"></el-input>
+			<el-form ref="dynamicValidateForm" :model="newData" :rules="rules" label-width="100px">
+				<el-form-item label="类型名称：" prop="name" style="width: 100%">
+					<el-input v-model="newData.name" placeholder="请输入类型名称" :maxlength="GLOBAL.maxlength" style="width: 200px"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -69,7 +69,7 @@
 				},
 				rules: {
 					name: [
-						{ required: true, message: '请输入活动名称', trigger: 'blur' },
+						{ required: true, message: '请输入类型名称', trigger: 'blur' },
 					],
 				},
 				//spendingList: {//分页的默认的参数
@@ -93,7 +93,8 @@
 				};
 				sysSpending.list(params)
 					.then(response => {
-						this.tableData = response.data.results;
+						if (response.data.results) this.tableData = response.data.results;
+						
 //              		this.allcounts = Number(response.data.results.length);
 					})
 					.catch(function (response) {
@@ -151,8 +152,11 @@
 			cancelAddSpending(){
 				this.dialogFormVisible = false;
 				this.newData.name = '';
+			},
+			resetForm(formName){
+				this.dialogFormVisible = true;
+				this.$refs[formName].resetFields();
 			}
-
 			
 		}
 	}

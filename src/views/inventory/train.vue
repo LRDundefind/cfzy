@@ -60,7 +60,7 @@
 			    <el-table-column
 			        prop="shipName"
 			        label="货主"
-			        width="180">
+			        width="100">
 			    </el-table-column>
 			    <el-table-column
 			        prop="putStorageTime"
@@ -68,13 +68,13 @@
 			    </el-table-column>
 			    <el-table-column
 			        prop="selName"
-			        label="入库员"
-			        width="180">
+			        label="入库员">
 			    </el-table-column>
 			    <el-table-column
-			        prop="train_good"
-			        label="货品"
-			        width="180">
+			        label="货品">
+			        <template slot-scope="scope">
+						<div class="line-ellipsis-1" :title="scope.row.train_good">{{scope.row.train_good}}</div>
+			        </template>
 			    </el-table-column>
 			    <el-table-column
 			        label="货品结算金额">
@@ -93,8 +93,9 @@
 			        		<el-button type="danger" plain size="mini">查看</el-button>
 			        	</router-link>
 			        	<router-link :to="{ name: 'train/account',params: { tid: scope.row.tid }}">
-			        		<el-button v-if="scope.row.settleStatus == '待结算'" type="danger" plain size="mini">结算</el-button>
+			        		<el-button v-if="scope.row.settleStatus == '待结算' || (roleId == 'role_finance_sell' && scope.row.settleStatus == '售卖中')" type="danger" plain size="mini">结算</el-button>
 			        	</router-link>
+			        	<el-button v-if="scope.row.settleStatus == '未开卖'" type="danger" @click="deleteTrain(scope.row.tid)" plain size="mini">删除</el-button>
         			</template>
 			    </el-table-column>
 		    </el-table>	
@@ -103,8 +104,22 @@
 			  layout="total, prev, pager, next"
 			  :total="total"
 			  :page-size="params.page_size"
+			  :current-page.sync="params.current_page"
 			   @current-change="handleCurrentChange">
 			</el-pagination>
+            <!--删除-->
+            <el-dialog
+                    title="提示"
+                    :visible.sync="dialogVisible"
+                    width="30%"
+                   >
+                <span>确认删除该车次？</span>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="deleteConfirm()">确 定</el-button>
+              </span>
+            </el-dialog>
+
 		</div>
 	</div>
 
@@ -114,9 +129,13 @@
 	import '@/style/inventory/inventory.scss';
 	import { train } from '@/services/apis/train';
 	import { keyValue } from '@/services/apis/key-value';
+	import Cookies from 'js-cookie'
 	export default {
 		data() {
 			return {
+			    trainId:'',
+                dialogVisible:false,
+				roleId: Cookies.get('roleId'),  //角色
 				loading: true,
 				keyValueData:{},
 				carStauts:[],
@@ -139,13 +158,8 @@
 			}
 		},
 		created(){
-			keyValue()
-            .then(response => {
-                this.keyValueData = response.data.results
-                this.carStauts = this.keyValueData.car_status;
-            })
             //获取货品
- 			train.goods({page_size:'100',current_page:'1'})
+ 			train.goods({target_gid:JSON.parse(Cookies.get('gid')).gid,page_size:'100',current_page:'1'})
             .then(response => {
                 this.goodsList = response.data.results.list
             });
@@ -157,7 +171,14 @@
             
 		},
 		mounted() {
-			this.getList();
+
+			keyValue()
+            .then(response => {
+                this.keyValueData = response.data.results
+                this.carStauts = this.keyValueData.car_status;
+                this.getList();
+            })
+			
 		},
 		updated(){
    			
@@ -181,6 +202,7 @@
                 });
 			},
 			search(){
+				this.params.current_page = 1;
 				if(this.timeQuantum==null){
 					this.params.start_time='';
 					this.params.end_time='';
@@ -194,7 +216,38 @@
 			handleCurrentChange(val){
 				this.params.current_page = val;
 				this.getList();
-			}
+			},
+
+            deleteTrain(id){
+			    this.trainId = id;
+			    this.dialogVisible = true;
+            },
+
+            deleteConfirm(){
+                let data = {
+                    tid:this.trainId,
+                };
+                train.deleteTrain(data)
+                    .then(response => {
+                        this.dialogVisible = false;
+                        this.getList();
+                        this.$message({
+                            message: '操作成功',
+                            type: 'success'
+                        });
+                    })
+            },
+
+//			deleteTrain(tid){
+//				 train.deleteTrain({tid:tid})
+//                .then(response => {
+//                	this.getList();
+//                	this.$message({
+//			          message: '操作成功',
+//			          type: 'success'
+//			        });
+//                })
+//			}
 		}
 	}
 </script>

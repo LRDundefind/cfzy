@@ -1,4 +1,9 @@
 .orderDetails {
+    .width-220{
+        width: -moz-calc(100% - 220px);
+        width: -webkit-calc(100% - 220px);
+        width: calc(100% - 220px);
+    }
     .infoLayout {
         padding: 0 10px;
         .icon {
@@ -7,7 +12,6 @@
             border-radius: 50%;
             background-repeat: no-repeat;
             background-size: cover;
-            background-color: red;
         }
         //每一项信息
         .info {
@@ -69,7 +73,9 @@
         .img {
             width: 200px;
             height: 110px;
-            background-color: red;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
         }
     }
     //货品单价输入框

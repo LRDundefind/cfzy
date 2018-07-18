@@ -15,14 +15,14 @@
                 </el-form-item>
 
                 <el-form-item label="昵称：" prop="nickname">
-                    <el-input v-model="dataForm.nickname" size="small" placeholder="请输入昵称"></el-input>
+                    <el-input v-model="dataForm.nickname" size="small" placeholder="请输入昵称" :maxlength = '32'></el-input>
                 </el-form-item>
 
                 <el-form-item label="地址：" prop="address">
-                    <el-input v-model="dataForm.address" size="small" placeholder="请输入地址"></el-input>
+                    <el-input v-model="dataForm.address" size="small" placeholder="请输入地址" :maxlength = '50'></el-input>
                 </el-form-item>
                 <el-form-item label="手机号：" prop="phone">
-                    <el-input v-model="dataForm.phone" size="small" placeholder="请输入手机号"></el-input>
+                    <el-input v-model="dataForm.phone" size="small" placeholder="请输入手机号" :maxlength = '11'></el-input>
                 </el-form-item>
 
                 <p class="addTitle b-c-de p-l-20 m-b-20">更多信息</p>
@@ -33,21 +33,21 @@
                 </el-form-item>
 
                 <el-form-item label="企业名称：" prop="company">
-                    <el-input v-model="dataForm.company" size="small" placeholder="请输入企业名称"></el-input>
+                    <el-input v-model="dataForm.company" size="small" placeholder="请输入企业名称" :maxlength = '50'></el-input>
                 </el-form-item>
 
                 <el-form-item label="状态：" prop="status">
                     <div class="p-r-20 floatLeft">
-                        <el-switch v-model="dataForm.status" on-text="开" off-text="关" active-value="Y"
-                                   inactive-value="N"
+                        <el-switch v-model="dataForm.status" on-text="开" off-text="关" active-value="N"
+                                   inactive-value="Y"
                         ></el-switch>
                     </div>
-                    <span v-if="dataForm.status == 0" class="p-r-20">黑名单</span>
-                    <span v-else-if="dataForm.status == 1" class="p-r-20">正常</span>
+                    <span v-if="dataForm.status == 'Y'">黑名单</span>
+                    <span v-else-if="dataForm.status == 'N'">正常</span>
                 </el-form-item>
 
                 <el-form-item label="备注：" prop="remark">
-                    <el-input type="textarea" v-model="dataForm.remark" size="small" placeholder="请输入备注"></el-input>
+                    <el-input type="textarea" v-model="dataForm.remark" size="small" placeholder="请输入备注" :maxlength = '320'></el-input>
                 </el-form-item>
 
                 <el-form-item>
@@ -101,8 +101,8 @@
             };//身份证号码验证规则
 
             return {
-                nameDisabled: false,
-                cardDisabled: false,
+                nameDisabled: false,//姓名disabled
+                cardDisabled: false,//身份证disabled
                 id: '',
                 dataForm: {
                     nickname: '',
@@ -141,6 +141,7 @@
 
         },
         mounted() {
+            //路由传参
             this.id = this.$route.params.id;
             this.getInfo(this.id);
         },
@@ -174,23 +175,34 @@
             //保存客户信息
             submitForm() {
                 let data = this.dataForm;
-                if(this.nameDisabled){
-                    data.cusName ='';
-                }
-                if(this.cardDisabled){
-                    data.idCard = '';
-                }
-                console.log(data);
+//                if(this.nameDisabled){
+//                    data.cusName ='';
+//                }
+//                if(this.cardDisabled){
+//                    data.idCard = '';
+//                }
+//                console.log(data);
                 data.cid = this.id;
+                if(data.status == 'N'){
+                    data.reported = 'N'
+                }
 
                 customer.editInfo(data)
                     .then(response => {
-                        this.$router.push({
-                            name: 'customDetails',
-                            params: {
-                                id: this.id
-                            }
-                        })
+                        if(response.data.status == 'Y'){
+                            this.$message({
+                                message: '操作成功',
+                                type: 'success'
+                            });
+
+                            this.$router.push({
+                                name: 'customDetails',
+                                params: {
+                                    id: this.id
+                                }
+                            })
+                        }
+
                         console.log(response);
                     })
                     .catch(function (response) {

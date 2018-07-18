@@ -1,8 +1,8 @@
 <template>
     <div class="blackList f-s-14 c-3">
         <div class="ub ub-ac">
-            <el-button @click="$router.go(-1)" type="info" class="goback-btn" size="mini" icon="el-icon-arrow-left">返回</el-button>
-            <div class="m-l-20">系统黑名单</div>
+            <el-button @click="goHome()" type="info" class="goback-btn" size="mini" icon="el-icon-arrow-left">返回</el-button>
+            <div class="m-l-20">平台黑名单</div>
         </div>
 
         <div class="b-c-f m-t-20 p-20">
@@ -26,10 +26,15 @@
                 <el-table
                         :data="tableData"
                         stripe
-                        style="width: 100%" size="small">
+                        style="width: 100%" size="small"
+                        v-loading="loading">
                     <el-table-column label="头像" width="180" style="padding: 0 20px">
                         <template slot-scope="scope">
-                            <img :src="scope.row.headImg" width="46" height="44"/>
+                            <img class="black-img" v-show="scope.row.headImg!=''" :src="imgpath+scope.row.headImg" width="46" height="44">
+                            <img class="black-img" v-show="scope.row.headImg==''" src="../../assets/default/defautImg.png" alt="" width="46" height="44">
+
+                            <!--<img v-if="scope.row.headImg !='' " :src="scope.row.headImg" width="46" height="44"/>-->
+                            <!--<img :src="scope.row.headImg = '' " width="46" height="44"/>-->
                         </template>
                     </el-table-column>
 
@@ -66,6 +71,15 @@
                         </template>
                     </el-table-column>
                 </el-table>
+                <div class="m-t-20">
+                    <el-pagination
+                            background
+                            layout="total, prev, pager, next"
+                            :total="total"
+                            :page-size="blackParams.page_size"
+                            @current-change="handleCurrentChange">
+                    </el-pagination>
+                </div>
             </div>
         </div>
     </div>
@@ -79,38 +93,26 @@
         name: 'blackList',
         data() {
             return {
+                loading:true,
+                imgpath: process.env.BASE_PATH,
                 blackData:{
                     cusName: "",
                     phone: "",
                     idCard:'',
-                },
+                },//搜索参数
                 blackParams: {
                     cusName: "",
                     phone: "",
                     idCard:'',
-                },//黑名单筛选
+                    page_size: 10,
+                    current_page: 1
+
+                },//黑名单筛选参数
                 name: '',
                 phone: '',
-                IdentityCard: '',
-                tableData: [{
-                    id:'1',
-                    picture: 'https://gss1.bdstatic.com/-vo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike92%2C5%2C5%2C92%2C30/sign=1a3d82d42f2dd42a4b0409f9625230d0/314e251f95cad1c86a912b9a753e6709c93d5161.jpg',
-                    name: '王小虎',
-                    ID: '410927199307061234',
-                    enterprise: '某某欧式企业',
-                    phone: '18236911783',
-                    date: '2016-05-02',
-                    reason: '赊欠巨款',
-                }, {
-                    id:'2',
-                    picture: 'https://gss1.bdstatic.com/-vo3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike92%2C5%2C5%2C92%2C30/sign=1a3d82d42f2dd42a4b0409f9625230d0/314e251f95cad1c86a912b9a753e6709c93d5161.jpg',
-                    name: '王小虎',
-                    ID: '410927199307061234',
-                    enterprise: '某某欧式企业',
-                    phone: '18236911783',
-                    date: '2016-05-02',
-                    reason: '赊欠巨款',
-                }],//系统黑名单表单详情
+                IdentityCard: '',//身份证号
+                tableData: [],//系统黑名单表单详情
+                total:null,
             }
         },
         mounted() {
@@ -118,13 +120,30 @@
         },
 
         methods:{
+            //跳转到首页
+            goHome(){
+                this.$router.push({name: 'home'});
+            },
             //初始化数据
             getData(){
+//                var doMain = process.env.BASE_PATH;
+//                let defaultImg = require('../../assets/default/defautImg.png');
                 home.blacklist(this.blackParams)
                     .then(response => {
-                        this.tableData =response.data.results;
-                        console.log(response.data.results);
-
+                        if(response.data.status == 'Y'){
+                            this.tableData =response.data.results.list;
+                            this.total = response.data.results.total;
+                            this.loading = false;
+//                            q.forEach(function (value) {
+//                                if(value.headImg == ''){
+//                                    value.headImg = defaultImg;
+//                                }else {
+//                                    value.headImg = doMain + defaultImg;
+//                                }
+//                            });
+                        }else if(response.data.status == 'N'){
+                            this.$message.error(response.data.error_msg);
+                        }
                     })
                     .catch(function (response) {
                         console.log(response);
@@ -142,10 +161,13 @@
             onClickDetails: function(id) {
                 this.$router.push({
                     name: 'customDetails',
-                    params: {
-                        id: id
-                    }
+                    params: {id: id, come: 'black'}
                 })
+            },
+            //分页
+            handleCurrentChange(val){
+                this.blackParams.current_page = val;
+                this.getData();
             }
         },
     }

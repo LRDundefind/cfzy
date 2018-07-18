@@ -4,7 +4,6 @@
         <!-- 内容 -->
         <div class="content">
             <!-- 筛选条件 -->
-            <!-- 筛选条件 -->
             <el-form ref="searchForm" :model="searchForm" label-width="85px" class="clearfix">
                 <div class="ub">
                     <el-form-item label="操作人名称" >
@@ -102,9 +101,12 @@
             getData(){
                 home.log(this.logParams)
                     .then(response => {
-                        this.tableData = response.data.results.list;
-                        console.log(response.data.results);
-                        this.total = response.data.results.total;
+                        if(response.data.status =='Y'){
+                            this.tableData = response.data.results.list;
+                            this.total = response.data.results.total;
+                        }else if(response.data.status =='N'){
+                            this.$message.error(response.data.error_msg);
+                        }
                     })
                     .catch(function (response) {
                         console.log(response);

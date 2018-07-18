@@ -31,7 +31,7 @@
 							<el-option v-for="item in keyValueData.pay_type" :key="item.key" :label="item.value" :value="item.key"></el-option>
 						</el-select>
 					</el-form-item>
-					<el-form-item label="入库时间" class="selectData m-l-30">
+					<el-form-item label="下单时间" class="selectData m-l-30">
 					    <el-date-picker
 					      value-format="yyyy-MM-dd"
 					      v-model="timeQuantum"
@@ -59,7 +59,7 @@
 			<el-menu :default-active="listQuery.status" class="el-menu-demo" mode="horizontal" @select="selectOrderType">
 				<!-- <el-menu-item v-for="item in keyValueData.order_knot_status" :key="item.key" :index="item.key">{{item.value}}</el-menu-item> -->
 				<el-menu-item index="status_topay">待支付</el-menu-item>
-				<el-menu-item index="status_topick">待提货</el-menu-item>
+				<!-- <el-menu-item index="status_topick">待提货</el-menu-item> -->
 				<el-menu-item index="status_complete">已完成</el-menu-item>
 				<el-menu-item index="status_cancel">已取消</el-menu-item>
 				<el-menu-item index="">全部</el-menu-item>
@@ -68,17 +68,28 @@
 
 			<!--列表-->
 			<el-table :data="tableData" stripe v-loading="loading">
-				<el-table-column prop="orderNo" label="订单编号" width="130">
+				<el-table-column prop="orderNo" label="订单编号">
 				</el-table-column>
-				<el-table-column prop="nickname" label="客户" width="130">
-				</el-table-column>
+				<!--<el-table-column prop="nickname" label="客户" width="130">-->
+				<!--</el-table-column>-->
+                <el-table-column label="客户">
+                    <template slot-scope="scope">
+                        <div>
+                            <span v-show="scope.row.nickname != ''">{{scope.row.nickname}}</span>
+                            <span v-show=" scope.row.phone == '' && scope.row.nickname == ''">临时客户</span>
+                        </div>
+                    </template>
+                </el-table-column>
 				<el-table-column prop="placeOrderTime" width="180" label="下单时间">
 				</el-table-column>
 				<el-table-column prop="selName" width="130" label="卖手">
 				</el-table-column>
-				<el-table-column prop="goods" label="货品">
+				<el-table-column label="商品">
+					<template slot-scope="scope">
+						<span :title="scope.row.goodName">{{scope.row.goodName}}</span>
+					</template>
 				</el-table-column>
-				<el-table-column prop="salesAmount" label="销售金额">
+				<el-table-column prop="salesAmount" width="180" label="销售金额">
 				</el-table-column>
 				<el-table-column prop="status" width="120" label="订单状态">
 				</el-table-column>
@@ -89,11 +100,13 @@
 						<el-button v-if="scope.row.status == '待支付'" @click="handleSettlement(scope.$index, scope.row)" size="mini" type="danger" plain>结算</el-button>
 						<el-button @click="onClickItem(scope.$index, scope.row)" size="mini" type="danger" plain>查看</el-button>
 						<el-button v-if="scope.row.status == '待支付'"  @click="handleCancel(scope.$index, scope.row)" size="mini" type="info" plain>取消</el-button>
+						<el-button v-if="scope.row.status=='待提货' || scope.row.status=='已完成'" @click="print(scope.$index, scope.row)" size="mini" type="danger" plain>打印结算单</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
 			<el-pagination class="m-t-20" 
 			  @current-change="currentChange" 
+			  :current-page.sync="listQuery.current_page"
 			  background layout="total, prev, pager, next" 
 			  :page-size="listQuery.page_size"
 			  :total="total">
@@ -125,7 +138,7 @@
 						amount_min:'',	//订单价格 小
 						amount_max:'',	//订单价格 大
 						status:'status_topay',
-						page_size:20,
+						page_size:10,
 						current_page:1,
 					},
 					total: null, //分页总条数
@@ -167,6 +180,7 @@
 	                })
 				},
 				search(){
+					this.listQuery.current_page = 1;
 					var params = this.listQuery;
 					if(this.timeQuantum==null){
 						params.start_time='';
@@ -207,11 +221,14 @@
 				},
 				//取消
 				handleCancel(index, row) {
-					//console.log(index, row.oid);
-					account.cancel({oid:row.oid})
-	                .then(response => {
-	                    this.getList();
-	                })
+					this.$confirm('您确定取消该订单吗？')
+				        .then(_ => {
+				            account.cancel({oid:row.oid})
+			                .then(response => {
+			                    this.getList();
+			                })
+				        })
+				        .catch(_ => {});					
 				},
 				//进入详情
 				onClickItem(index, row) {
@@ -223,15 +240,26 @@
 						},
 						query: { type:'order_knot'}
 					});
+				},
+				//打印结算单
+				print(index, row){
+					this.$router.push({
+						name: 'order/orderSettlementSheet',
+						params: {
+							oid: row.oid
+						},
+						query: { type:'order_knot'}
+					});
 				}
 			},
 			mounted: function() {
 				//获取键值
 				keyValue()
 	            .then(response => {
-	                this.keyValueData = response.data.results
+	                this.keyValueData = response.data.results;
+	                this.getList();
 	            })
-				this.getList();
+				
 				this.getSellinglist();
 			},
 			updated(){

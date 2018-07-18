@@ -41,6 +41,14 @@ export const owner = {
             method: 'post',
             data: serverMoudle(data)
         });
-    }
+    },
+    //修改货主承赊状态
+    editStatus(data) {
+        return axios({
+            url: '/rest/CHENGFENG_SET_GOOD_OWNERINF_BCS',
+            method: 'post',
+            data: serverMoudle(data)
+        });
+    },
 
 }

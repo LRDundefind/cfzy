@@ -34,6 +34,22 @@ export const train = {
             data: serverMoudle(data)
         });
     },
+    //删除车次
+    deleteTrain(data) {
+         return axios({
+            url: '/rest/CHENGFENG_SET_TRAIN_DEL',
+            method: 'post',
+            data: serverMoudle(data)
+        });
+    },
+    //编辑车次信息
+    editTrain(data) {
+         return axios({
+            url: '/rest/CHENGFENG_SET_TRAIN_EDITINFO',
+            method: 'post',
+            data: serverMoudle(data)
+        });
+    },
     //修改车次货品信息
     editGoodsInfo(data) {
          return axios({
@@ -74,4 +90,14 @@ export const train = {
             data: serverMoudle(data)
         });
     },
+
+    //获取车次结算单
+    carPrint(data) {
+        return axios({
+            url: '/rest/CHENGFENG_SET_TRAIN_ClEARDETAILS',
+            method: 'post',
+            data: serverMoudle(data)
+        });
+    },
+
 }

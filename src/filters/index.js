@@ -1,5 +1,11 @@
+//全局过滤器
+/**
+ * 格式化金额，整数部分三一断，保留两位小数
+ * @param  {[type]} num [description]
+ * @return {[type]}     [description]
+ */
 export function format(num) {
-    num = Number(num)
+    num = Number(num)  //转换为number类型
     //num = num.toString().replace(/\$|\,/g,'');
     if(isNaN(num)) num = 0;
     var sign = (num == (num = Math.abs(num)));
@@ -30,7 +36,12 @@ export function format(num) {
    //  return intPartFormat + floatPart;
    // }
 }
-//售卖单位转换
+
+/**
+ * 售卖单位转换
+ * @param  {[type]} value [description]
+ * @return {[type]}       [description]
+ */
 export function sellNnit(value) {
     let unit = {
         unit_jin:'斤',
@@ -61,4 +72,24 @@ export function paymentWay(value) {
 
     };
     return pay[value]
+}
+
+//角色
+export function role(value) {
+    let roleId = {
+        role_sel:'卖手',
+        role_finance:'财务',
+        role_finance_sell:'财务兼卖手'
+    };
+    return roleId[value]
+}
+
+//减水重单位
+export function slushingWeight(value) {
+    let order = {
+        unit_jin:'斤/件',
+        unit_kg:'公斤/件',
+
+    };
+    return order[value]
 }

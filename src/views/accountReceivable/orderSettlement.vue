@@ -10,11 +10,12 @@
 			</div>
 			<div class="ub">
 				<div class="labelName">客户姓名：</div>
-				<div class="c-6">{{customerName}}</div>
+				<div v-if="phone != ''" class="c-6">{{customerName}}</div>
+				<div v-else class="c-6">临时客户</div>
 			</div>
 			<div class="ub m-t-20">
 				<div class="labelName">货品费用：</div>
-				<div class="c-6">{{cost.salesAmount}}</div>
+				<div class="c-6">{{cost.goodAmount}}</div>
 			</div>
 			<div class="ub m-t-20">
 				<div class="labelName">包装费：</div>
@@ -26,11 +27,11 @@
 			</div>
 			<div class="ub m-t-20">
 				<div class="labelName">过磅费：</div>
-				<div class="c-6">{{cost.salesAmount}}</div>
+				<div class="c-6">{{cost.weighCost}}</div>
 			</div>
 			<div class="ub m-t-20">
 				<div class="labelName">应付总金额：</div>
-				<div class="c-6">{{cost.weighCost}}</div>
+				<div class="c-6">{{cost.salesAmount}}</div>
 			</div>
 			<div class="ub m-t-20">
 				<div class="labelName payType">支付方式：</div>
@@ -58,6 +59,7 @@
 						payType:''
 					},
 					customerName:'',
+					phone:'',  //客户电话
 					cost:{},
 					keyValueData :"",
 				}
@@ -71,6 +73,7 @@
 					account.info(params)
 	                .then(response => {
 	                	this.customerName = response.data.results.customer_info.nickname
+	                	this.phone = response.data.results.customer_info.phone
 	                	this.cost = response.data.results.order_info;
 	                });
 	            },
@@ -79,12 +82,20 @@
 					if (this.params.payType) {
 						account.knotclear(this.params)
 		                .then(response => {
-		                    this.$router.push({
-								name: 'order/orderSettlementSheet',
-								params:{
-									oid: this.$route.params.temporaryUser,
-								}
-							})
+		                	if (response.data.status == 'Y') {
+		                		this.$router.push({
+									name: 'order/orderSettlementSheet',
+									params:{
+										oid: this.$route.params.temporaryUser,
+									}
+								})
+		                	}else{
+		                		this.$message({
+						          message: response.data.error_msg,
+						          type: 'warning'
+						        });
+		                	}
+		                    
 		                })
 					}else{
 						this.$message({
@@ -99,12 +110,12 @@
 				}
 			},
 			mounted() {
-				this.getInfo();
 				//console.log(this.$route.params.data);
 				//获取键值
 				keyValue()
 	            .then(response => {
-	                this.keyValueData = response.data.results
+	                this.keyValueData = response.data.results;
+	                this.getInfo();
 	            })
 			},
 			watch: {

@@ -10,9 +10,16 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 const OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin')
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-
-const env = require('../config/prod.env')
-
+let env = '';
+//const env = require('../config/prod.env')
+//const env = process.env.NODE_ENV === 'production' ? config.build.prodEnv : config.build.testEnv
+if (process.env.NODE_ENV === 'production') {
+  env = config.build.prodEnv
+}else if (process.env.NODE_ENV === 'test') {
+  env = config.build.testEnv
+}else if (process.env.NODE_ENV === 'test9080'){
+  env = config.build.test9080Env
+}
 const webpackConfig = merge(baseWebpackConfig, {
   module: {
     rules: utils.styleLoaders({

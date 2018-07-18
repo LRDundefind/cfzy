@@ -40,17 +40,10 @@
 	}
 	
 	body {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		bottom: 0;
-		overflow-x: hidden;
+		overflow: auto;
 	}
 	
 	#app {
-		min-width: 1200px;
-		height: 100%;
-		overflow-x: hidden;
+		height: 100vh;
 	}
 </style>

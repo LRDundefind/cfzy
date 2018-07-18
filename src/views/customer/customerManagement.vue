@@ -6,16 +6,16 @@
         <el-form :model="customersParams" class="m-t-10 b-c-f p-20" label-width="70px">
             <div class="ub">
                 <el-form-item label="客户名称" class="ub-f1">
-                    <el-input v-model="customersParams.nickname" size="small" placeholder="请输入客户名称"></el-input>
+                    <el-input v-model="customersParams.nickname" placeholder="请输入客户名称"></el-input>
                 </el-form-item>
                 <el-form-item class="m-l-20 ub-f1" label="客户电话">
-                    <el-input v-model="customersParams.phone" size="small" placeholder="请输入客户电话"></el-input>
+                    <el-input v-model="customersParams.phone" placeholder="请输入客户电话"></el-input>
                 </el-form-item>
                 <el-form-item class="m-l-20 ub-f1" label="身份证号">
-                    <el-input v-model="customersParams.idCard" size="small" placeholder="亲输入身份证号"></el-input>
+                    <el-input v-model="customersParams.idCard" placeholder="请输入身份证号"></el-input>
                 </el-form-item>
-                <el-form-item class="m-l-20 ub-f1" label="状态">
-                    <el-select v-model="customersParams.status" placeholder="请选择状态" size="small">
+                <el-form-item class="m-l-20 ub-f1" label="平台状态">
+                    <el-select v-model="customersParams.status" placeholder="请选择状态">
                         <el-option label="全部" value=""></el-option>
                         <el-option v-for="item in stateList" :key="item.key" :label="item.value"
                                    :value="item.key"></el-option>
@@ -24,10 +24,10 @@
             </div>
             <div class="ub">
                 <el-form-item label="交易金额">
-                    <el-input v-model="customersParams.tradeAmount_min" size="small" placeholder="请输入交易最小金额"></el-input>
+                    <el-input v-model="customersParams.tradeAmount_min" placeholder="请输入交易最小金额"></el-input>
                 </el-form-item>
                 <el-form-item label="-" label-width="30px">
-                    <el-input v-model="customersParams.tradeAmount_max" size="small" placeholder="请输入交易最大金额"></el-input>
+                    <el-input v-model="customersParams.tradeAmount_max" placeholder="请输入交易最大金额"></el-input>
                 </el-form-item>
 
                 <el-form-item class="m-l-20 selectData" label="创建时间">
@@ -50,11 +50,12 @@
             <el-table
                     :data="tableData"
                     stripe
-                    style="width: 100%">
+                    style="width: 100%"
+                    v-loading="loading">
 
                 <el-table-column
                         prop="name"
-                        label="客户姓名">
+                        label="昵称">
                     <template slot-scope="scope">
                         <span>{{scope.row.nickname}}</span>
                     </template>
@@ -109,9 +110,9 @@
                         width="140">
                     <template slot-scope="scope">
                         <div style="position: relative">
-                            <el-switch v-model="scope.row.status" on-text="开" off-text="关" active-value="0"
-                                       inactive-value="1"
-                                       @change="toggleStatus(scope.row.id,scope.row.disabled)"></el-switch>
+                            <el-switch v-model="scope.row.status" on-text="开" off-text="关" active-value="N"
+                                       inactive-value="Y"
+                                       @change="toggleStatus(scope.row)"></el-switch>
                         </div>
                         <span v-if="scope.row.sys_status == 0" style="position: absolute; top:14px; left:-68px;">
                                     <img src="../../assets/blackList/blackList.png" height="20" width="20"/>
@@ -133,7 +134,9 @@
                 <el-pagination
                         background
                         layout="total, prev, pager, next"
-                        :total="total">
+                        :total="total"
+                        :page-size="customersParams.page_size"
+                        @current-change="handleCurrentChange">
                 </el-pagination>
             </div>
         </div>
@@ -149,6 +152,7 @@
         name: 'home',
         data() {
             return {
+                loading:true,
                 total: null,
                 currentPage4: 4,//当前页,
                 timeQuantum: [],
@@ -161,8 +165,8 @@
                     tradeAmount_min: '',//交易金额小
                     tradeAmount_max: '',//交易金额大
                     status: '',//状态
-                    page_size: '10',
-                    current_page: '1'
+                    page_size: 10,
+                    current_page: 1
                 },
 
                 tableData: [],//客户信息
@@ -189,48 +193,64 @@
             this.getList()
         },
         methods: {
+            //获取客户列表
             getList(){
                 customer.list(this.customersParams)
                     .then(response => {
-                        if(response.data.results.list==''){
-                            this.tableData = [];
-                        }else {
-                            this.tableData = response.data.results.list;
-                            this.total = response.data.results.total
+                        this.tableData = response.data.results.list;
+                        this.total = response.data.results.total;
+                        if(this.tableData){
                             let q = this.tableData;
                             q.forEach(function (value) {
                                 value.sys_status = value.sys_status == "N" ? '正常' : "黑名单";
-                                value.status = value.status == "N" ? '1' : '0';
                             });
                         }
-                        console.log(this.tableData);
+                        this.loading = false;
+                    })
+            },
+
+            //分页
+            handleCurrentChange(val){
+                this.customersParams.current_page = val;
+                this.getList();
+            },
+            //切换状态
+            toggleStatus(row) {
+                let cid = row.cid;
+                let status = row.status;
+                let data ={
+                    cid:'',
+                    nickname: '',
+                    cusName: '',
+                    phone: '',
+                    idCard: '',
+                    company: '',
+                    address: '',
+                    status: '',
+                    remark: '',
+                    reported:'',
+                };
+                data.status = status;
+                data.cid = cid;
+                if(data.status == 'N'){
+                    data.reported = 'N'
+                }else {
+                    delete data.reported;
+                }
+                customer.editInfo(data)
+                    .then(response => {
+                        if(response.data.status == 'Y'){
+                            this.$message({
+                                message: '操作成功',
+                                type: 'success'
+                            });
+                        }
                     })
                     .catch(function (response) {
                         console.log(response);
                     });
             },
-            handleSizeChange(val) {
-                console.log(`每页 ${val} 条`);
-            },
-            handleCurrentChange(val) {
-                console.log(`当前页: ${val}`);
-            },
-            toggleStatus(rightid, statusBler) {
-                console.log(rightid);
-                console.log(statusBler);
-//                if (statusBler == true) {//开启
-//                    var status2 = 1;
-//                } else if (statusBler == false) {//关闭
-//                    var status2 = 0;
-//                }
-//                let data = {
-//                    id: rightid,
-//                    disabled: status2
-//                };
-//                fetchusercontacts(data).then(response => {
-//                    this.success('操作成功!');
-//                })
-            },
+
             //跳转到详情页面
             onClickDetails (id){
                 this.$router.push({
@@ -240,7 +260,7 @@
                     }
                 })
             },
-            //搜素
+            //搜索
             search(){
                 if (parseInt(this.customersParams.tradeAmount_max) < parseInt(this.customersParams.tradeAmount_min)) {
                     this.$message.error('交易金额输入有误！请重新输入');
@@ -255,6 +275,7 @@
                     this.customersParams.createTime_end = this.timeQuantum[1];
                     console.log(this.customersParams);
                 }
+                this.customersParams.current_page = 1;
                 this.getList();
             },
             change: function () {
